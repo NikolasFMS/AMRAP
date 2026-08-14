@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0d1117" />
+  <title>AMRAP — Спортивный таймер и счетчик кругов</title>
+  <style>
+    /* CSS Reset & Variables */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      
+      /* Dark Theme (Default) */
+      --bg-primary: #0b0f17;
+      --bg-secondary: #141b26;
+      --bg-card: #1c2636;
+      --bg-card-hover: #243044;
+      --border-color: #2a374d;
+      
+      --text-primary: #f3f6fa;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-primary: #f59e0b; /* Amber */
+      --accent-primary-hover: #d97706;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      
+      --accent-green: #10b981;
+      --accent-green-glow: rgba(16, 185, 129, 0.25);
+      --accent-green-bg: #064e3b;
+      
+      --accent-red: #ef4444;
+      --accent-red-hover: #dc2626;
+      
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+      --shadow-md: 0 6px 20px rgba(0,0,0,0.4);
+      --shadow-lg: 0 12px 36px rgba(0,0,0,0.6);
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-pill: 9999px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-card: #f1f5f9;
+      --bg-card-hover: #e2e8f0;
+      --border-color: #cbd5e1;
+      
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      
+      --accent-primary: #d97706;
+      --accent-primary-hover: #b45309;
+      --accent-glow: rgba(217, 119, 6, 0.2);
+      
+      --accent-green: #059669;
+      --accent-green-glow: rgba(5, 150, 105, 0.2);
+      --accent-green-bg: #d1fae5;
+      
+      --accent-red: #dc2626;
+      --accent-red-hover: #b91c1c;
+      
+      --accent-blue: #2563eb;
+      --accent-blue-hover: #1d4ed8;
+      
+      --shadow-sm: 0 2px 6px rgba(0,0,0,0.06);
+      --shadow-md: 0 6px 16px rgba(0,0,0,0.08);
+      --shadow-lg: 0 12px 28px rgba(0,0,0,0.12);
+    }
+
+    body {
+      font-family: var(--font-family);
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      touch-action: manipulation;
+    }
+
+    #app-container {
+      width: 100%;
+      max-width: 580px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      position: relative;
+    }
+
+    /* Top Bar Header */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0 16px;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .brand-tag {
+      background-color: var(--accent-primary);
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 900;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.08em;
+    }
+
+    .icon-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-icon {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-icon:active {
+      transform: scale(0.92);
+      background: var(--bg-card-hover);
+    }
+
+    /* Screen Views */
+    .screen {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      width: 100%;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Components */
+    .card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    /* Setup Screen Elements */
+    .hero-banner {
+      text-align: center;
+      padding: 24px 16px;
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+    }
+
+    .hero-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 6px;
+      color: var(--text-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    /* Stats summary strip */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 8px;
+      text-align: center;
+    }
+
+    .stat-box-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+    }
+
+    .stat-box-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* Duration Selector */
+    .duration-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .btn-pill {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 10px 4px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+
+    .btn-pill.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .custom-time-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .custom-time-input-group label {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .input-number {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      width: 90px;
+      text-align: center;
+      user-select: text;
+    }
+
+    .input-number:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+    }
+
+    /* Exercises List Setup */
+    .exercise-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .exercise-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 10px 14px;
+      gap: 12px;
+    }
+
+    .exercise-name-input {
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-weight: 700;
+      flex: 1;
+      user-select: text;
+    }
+
+    .exercise-name-input:focus {
+      outline: none;
+      border-bottom: 1px solid var(--accent-primary);
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-step {
+      width: 34px;
+      height: 34px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      font-size: 1.2rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .btn-step:active {
+      background: var(--accent-primary);
+      color: #000;
+    }
+
+    .reps-input {
+      width: 44px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--accent-primary);
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 800;
+      user-select: text;
+    }
+
+    .btn-del-exercise {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-del-exercise:hover {
+      color: var(--accent-red);
+    }
+
+    .btn-add-exercise {
+      background: transparent;
+      border: 1px dashed var(--border-color);
+      color: var(--text-secondary);
+      padding: 10px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-add-exercise:hover {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
+    /* Start Button */
+    .btn-cta {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: #000000;
+      border: none;
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 24px var(--accent-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-top: auto;
+      margin-bottom: 12px;
+      transition: transform 0.1s ease, filter 0.15s ease;
+    }
+
+    .btn-cta:active {
+      transform: scale(0.97);
+      filter: brightness(0.9);
+    }
+
+    /* ============================================================ */
+    /* WORKOUT SCREEN (HIGH CONTRAST & ULTRA VISIBLE FOR SWEATY USE) */
+    /* ============================================================ */
+
+    #screen-workout {
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .workout-header {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .workout-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--accent-green);
+      animation: pulseDot 1.5s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .timer-huge {
+      font-family: var(--font-mono);
+      font-size: 4rem;
+      font-weight: 900;
+      line-height: 1;
+      text-align: center;
+      letter-spacing: -0.03em;
+      margin: 8px 0;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-huge.warning {
+      color: var(--accent-red);
+      animation: flashTimer 1s infinite;
+    }
+
+    @keyframes flashTimer {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Progress bar */
+    .progress-bar-container {
+      width: 100%;
+      height: 12px;
+      background: var(--bg-card);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      margin-top: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, var(--accent-green) 0%, var(--accent-primary) 70%, var(--accent-red) 100%);
+      border-radius: var(--radius-pill);
+      transition: width 0.3s linear;
+    }
+
+    /* Round Center Card & Giant Button */
+    .round-hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      gap: 14px;
+      margin: 4px 0;
+    }
+
+    .current-round-banner {
+      font-size: 2.2rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-primary);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .round-number-pill {
+      background: var(--accent-primary);
+      color: #000;
+      padding: 4px 16px;
+      border-radius: var(--radius-md);
+      font-family: var(--font-mono);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+
+    .round-task-preview {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-align: center;
+      max-width: 90%;
+    }
+
+    .round-task-tag {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+    }
+
+    /* GIANT HIT BUTTON */
+    .btn-round-finish {
+      width: 100%;
+      min-height: 140px;
+      background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      border: 3px solid #34d399;
+      border-radius: var(--radius-lg);
+      font-size: 1.85rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 10px 30px var(--accent-green-glow);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
+      touch-action: manipulation;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-round-finish:active {
+      transform: scale(0.96);
+      filter: brightness(1.15);
+      box-shadow: 0 4px 12px var(--accent-green-glow);
+    }
+
+    .btn-round-sub {
+      font-size: 0.85rem;
+      font-weight: 700;
+      opacity: 0.9;
+      letter-spacing: 0.08em;
+    }
+
+    /* Live stats matrix */
+    .live-stats-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .live-reps-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-around;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 10px;
+    }
+
+    .rep-stat-item {
+      text-align: center;
+    }
+
+    .rep-stat-val {
+      font-size: 1.35rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+
+    .rep-stat-lbl {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .live-splits-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      text-align: center;
+    }
+
+    .split-stat-val {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--accent-primary);
+    }
+
+    .split-stat-lbl {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* In-workout bottom controls */
+    .workout-controls-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn-workout-ctrl {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 12px 6px;
+      border-radius: var(--radius-md);
+      font-weight: 800;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-workout-ctrl:active {
+      transform: scale(0.96);
+      background: var(--bg-card-hover);
+    }
+
+    .btn-workout-ctrl.danger {
+      color: var(--accent-red);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-workout-ctrl.warning {
+      color: var(--accent-primary);
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    /* Pause Overlay Modal */
+    .pause-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(11, 15, 23, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 50;
+      border-radius: var(--radius-lg);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+      animation: fadeIn 0.15s ease;
+    }
+
+    .pause-overlay.active {
+      display: flex;
+    }
+
+    .pause-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      margin-bottom: 20px;
+    }
+
+    .btn-resume {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #fff;
+      border: none;
+      width: 100%;
+      max-width: 320px;
+      padding: 20px;
+      border-radius: var(--radius-lg);
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 8px 24px var(--accent-green-glow);
+      margin-bottom: 12px;
+    }
+
+    .btn-resume:active {
+      transform: scale(0.96);
+    }
+
+    /* Countdown overlay (3-2-1 Go!) */
+    .countdown-overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--bg-primary);
+      z-index: 60;
+      border-radius: var(--radius-lg);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .countdown-overlay.active {
+      display: flex;
+    }
+
+    .countdown-num {
+      font-size: 8rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+      line-height: 1;
+      animation: popNum 0.9s infinite;
+    }
+
+    .countdown-lbl {
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-secondary);
+      margin-top: 12px;
+    }
+
+    @keyframes popNum {
+      0% { transform: scale(0.6); opacity: 0; }
+      50% { transform: scale(1.1); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    /* ============================================================ */
+    /* FINISH / RESULTS SCREEN                                      */
+    /* ============================================================ */
+
+    .finish-hero {
+      text-align: center;
+      padding: 28px 16px;
+      background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-bottom: 16px;
+    }
+
+    .finish-headline {
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .finish-rounds-big {
+      font-size: 3.8rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      line-height: 1;
+      color: var(--accent-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .finish-rounds-label {
+      font-size: 1.3rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+      margin-top: 4px;
+    }
+
+    .record-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
+      color: #000;
+      font-size: 0.85rem;
+      font-weight: 900;
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      letter-spacing: 0.08em;
+      margin-top: 14px;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+      animation: pulseRecord 1.5s infinite;
+    }
+
+    @keyframes pulseRecord {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .result-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+    }
+
+    .result-item-val {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .result-item-lbl {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .splits-history-list {
+      max-height: 180px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: var(--bg-card);
+      margin-top: 8px;
+    }
+
+    .split-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .split-row:last-child {
+      border-bottom: none;
+    }
+
+    .split-row.best-split {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+    }
+
+    /* History & Info Modals */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-backdrop.active {
+      display: flex;
+    }
+
+    .modal-dialog {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 480px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      animation: modalPop 0.15s ease-out;
+    }
+
+    @keyframes modalPop {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-body {
+      padding: 16px 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .history-card-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    }
+
+    .history-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .btn-del-history-item {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 4px 8px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+
+    .btn-del-history-item:hover, .btn-del-history-item:active {
+      color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .history-date {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .history-rounds {
+      font-size: 1.1rem;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      color: var(--accent-primary);
+    }
+
+    .history-details {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-secondary:active {
+      background: var(--bg-card-hover);
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      padding: 12px 20px;
+      border-radius: var(--radius-pill);
+      font-size: 0.9rem;
+      font-weight: 800;
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-card);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: var(--radius-pill);
+    }
+  </style>
+</head>
+<body>
+
+<div id="app-container">
+
+  <!-- TOP BAR -->
+  <header class="top-bar">
+    <div class="brand-title" id="app-heading-title">
+      <span class="brand-tag">WOD</span>
+      <span id="header-workout-name">AMRAP</span>
+    </div>
+    <div class="icon-actions">
+      <button class="btn-icon" id="btn-sound-toggle" title="Звук" aria-label="Переключить звук">
+        🔊
+      </button>
+      <button class="btn-icon" id="btn-theme-toggle" title="Тема оформления" aria-label="Переключить тему">
+        🌓
+      </button>
+      <button class="btn-icon" id="btn-open-history" title="История тренировок" aria-label="Открыть историю">
+        📋
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 1: PRE-WORKOUT SETUP               -->
+  <!-- ========================================== -->
+  <main id="screen-setup" class="screen active">
+
+    <div class="hero-banner">
+      <h1 class="hero-title" id="setup-title">AMRAP</h1>
+      <p class="hero-subtitle">As Many Rounds As Possible • Максимум кругов</p>
+    </div>
+
+    <!-- Quick Stats Strip -->
+    <div class="stats-strip">
+      <div class="stat-box">
+        <div class="stat-box-val" id="stat-today-rounds">0</div>
+        <div class="stat-box-lbl">Сегодня</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val" id="stat-record-rounds">0</div>
+        <div class="stat-box-lbl">Рекорд</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-box-val" id="stat-total-workouts">0</div>
+        <div class="stat-box-lbl">Тренировок</div>
+      </div>
+    </div>
+
+    <!-- Duration Setup -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">Продолжительность</span>
+        <span class="stat-box-val" style="font-size: 1rem;" id="duration-display">20:00</span>
+      </div>
+      <div class="duration-selector">
+        <button type="button" class="btn-pill" data-minutes="10">10 мин</button>
+        <button type="button" class="btn-pill" data-minutes="15">15 мин</button>
+        <button type="button" class="btn-pill active" data-minutes="20">20 мин</button>
+        <button type="button" class="btn-pill" data-minutes="30">30 мин</button>
+      </div>
+      <div class="custom-time-input-group">
+        <label for="input-custom-minutes">Свое время (мин):</label>
+        <input type="number" id="input-custom-minutes" class="input-number" min="1" max="180" value="20" />
+      </div>
+    </section>
+
+    <!-- Exercises List Setup -->
+    <section class="card">
+      <div class="card-header">
+        <span class="card-title">Упражнения в одном круге</span>
+        <span id="total-round-reps-count" style="font-size: 0.8rem; font-weight:700; color: var(--accent-primary);">17 повт/круг</span>
+      </div>
+      <div class="exercise-list" id="exercise-list-container">
+        <!-- Generated dynamically -->
+      </div>
+      <button type="button" class="btn-add-exercise" id="btn-add-exercise">+ Добавить упражнение</button>
+    </section>
+
+    <!-- Start Button -->
+    <button type="button" class="btn-cta" id="btn-start-workout">
+      <span>▶</span> НАЧАТЬ ТРЕНИРОВКУ
+    </button>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 2: ACTIVE WORKOUT                  -->
+  <!-- ========================================== -->
+  <section id="screen-workout" class="screen">
+
+    <!-- Top Timer & Progress -->
+    <div class="workout-header">
+      <div class="workout-meta-row">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span id="workout-status-text">ИДЕТ ТРЕНИРОВКА</span>
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 800; font-family: var(--font-mono);" id="workout-total-preset">
+          20:00 AMRAP
+        </div>
+      </div>
+
+      <div class="timer-huge" id="workout-timer-display">20:00</div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="workout-progress-fill"></div>
+      </div>
+    </div>
+
+    <!-- Round Center Hero & Huge Tap Target -->
+    <div class="round-hero-section">
+      <div class="current-round-banner">
+        <span>КРУГ</span>
+        <span class="round-number-pill" id="live-current-round-num">1</span>
+      </div>
+
+      <div class="round-task-preview" id="live-task-preview">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- HUGE ROUND FINISH BUTTON -->
+      <button type="button" class="btn-round-finish" id="btn-round-done" aria-label="Завершить круг">
+        <span>КРУГ ЗАВЕРШЁН</span>
+        <span class="btn-round-sub">НАЖМИ ДЛЯ ФИКСАЦИИ</span>
+      </button>
+    </div>
+
+    <!-- Live Stats Summary -->
+    <div class="live-stats-card">
+      <div class="live-reps-row" id="live-reps-container">
+        <!-- Rendered dynamically (rounds, pullups, pushups, squats) -->
+      </div>
+      <div class="live-splits-row">
+        <div>
+          <div class="split-stat-val" id="live-last-round-time">—</div>
+          <div class="split-stat-lbl">Посл. круг</div>
+        </div>
+        <div>
+          <div class="split-stat-val" id="live-avg-round-time">—</div>
+          <div class="split-stat-lbl">Средний круг</div>
+        </div>
+        <div>
+          <div class="split-stat-val" id="live-best-round-time">—</div>
+          <div class="split-stat-lbl">Лучший круг</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- In-workout control buttons -->
+    <div class="workout-controls-bottom">
+      <button type="button" class="btn-workout-ctrl warning" id="btn-undo-round" title="Отменить последнее нажатие">
+        ↺ Отмена
+      </button>
+      <button type="button" class="btn-workout-ctrl" id="btn-pause-toggle">
+        ⏸ Пауза
+      </button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-finish-early">
+        ⏹ Завершить
+      </button>
+    </div>
+
+    <!-- Pause Overlay -->
+    <div class="pause-overlay" id="pause-overlay">
+      <div class="pause-title">ПАУЗА</div>
+      <p style="color: var(--text-secondary); margin-bottom: 24px; font-weight:600;">
+        Время тренировки остановлено
+      </p>
+      <button type="button" class="btn-resume" id="btn-resume-workout">
+        ▶ ПРОДОЛЖИТЬ
+      </button>
+      <button type="button" class="btn-workout-ctrl danger" style="padding: 14px 20px; font-size: 0.95rem;" id="btn-pause-exit">
+        Завершить тренировку
+      </button>
+    </div>
+
+    <!-- 3-2-1 Countdown Overlay -->
+    <div class="countdown-overlay" id="countdown-overlay">
+      <div class="countdown-num" id="countdown-digit">3</div>
+      <div class="countdown-lbl">ПРИГОТОВЬТЕСЬ!</div>
+    </div>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- SCREEN 3: FINISH / RESULTS                -->
+  <!-- ========================================== -->
+  <section id="screen-finish" class="screen">
+
+    <div class="finish-hero">
+      <div class="finish-headline">ТРЕНИРОВКА ЗАВЕРШЕНА</div>
+      <div class="finish-rounds-big" id="finish-rounds-count">0</div>
+      <div class="finish-rounds-label" id="finish-rounds-text">ПОЛНЫХ КРУГОВ</div>
+      
+      <div id="finish-record-badge-container">
+        <!-- New record badge if applicable -->
+      </div>
+    </div>
+
+    <!-- Repetitions Summary Card -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Итог по упражнениям</span>
+        <span id="finish-total-reps-sum" style="font-weight: 800; color: var(--accent-primary);">0 повторений</span>
+      </div>
+      <div id="finish-exercise-reps-list" style="display: flex; flex-direction: column; gap: 8px;">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- Metrics Grid -->
+    <div class="results-grid">
+      <div class="result-item">
+        <div class="result-item-val" id="finish-total-time">20:00</div>
+        <div class="result-item-lbl">Общее время</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="finish-avg-split">—</div>
+        <div class="result-item-lbl">Среднее время круга</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="finish-best-split">—</div>
+        <div class="result-item-lbl">Лучший круг</div>
+      </div>
+      <div class="result-item">
+        <div class="result-item-val" id="finish-last-split">—</div>
+        <div class="result-item-lbl">Последний круг</div>
+      </div>
+    </div>
+
+    <!-- Round Splits Details -->
+    <div class="card" style="padding-bottom: 12px;">
+      <div class="card-header" style="margin-bottom: 6px;">
+        <span class="card-title">Сплиты по кругам</span>
+        <span id="finish-splits-count" style="font-size: 0.8rem; color: var(--text-muted);">0 кругов</span>
+      </div>
+      <div class="splits-history-list" id="finish-splits-list">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; margin-bottom: 20px;">
+      <button type="button" class="btn-cta" id="btn-finish-to-home" style="margin-bottom: 0;">
+        В ГЛАВНОЕ МЕНЮ
+      </button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button type="button" class="btn-secondary" id="btn-finish-view-history">
+          📋 История
+        </button>
+        <button type="button" class="btn-secondary" id="btn-finish-share">
+          📤 Поделиться
+        </button>
+      </div>
+    </div>
+
+  </section>
+
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: HISTORY                             -->
+<!-- ========================================== -->
+<div class="modal-backdrop" id="modal-history">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div class="modal-title">История тренировок</div>
+      <button type="button" class="btn-icon" id="btn-close-history" style="width: 32px; height: 32px;">✕</button>
+    </div>
+    <div class="modal-body" id="history-items-container">
+      <!-- Generated dynamically -->
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-workout-ctrl danger" id="btn-clear-history" style="padding: 8px 14px;">
+        Очистить историю
+      </button>
+      <button type="button" class="btn-secondary" id="btn-close-history-footer">
+        Закрыть
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: CONFIRM FINISH EARLY                -->
+<!-- ========================================== -->
+<div class="modal-backdrop" id="modal-confirm-finish">
+  <div class="modal-dialog" style="max-width: 380px;">
+    <div class="modal-header">
+      <div class="modal-title">Завершить тренировку?</div>
+    </div>
+    <div class="modal-body">
+      <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem;">
+        Текущие завершённые круги и статистика будут сохранены в результатах.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-confirm-cancel">
+        Продолжить
+      </button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-ok" style="padding: 10px 18px;">
+        Да, завершить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL: CONFIRM CLEAR ALL HISTORY          -->
+<!-- ========================================== -->
+<div class="modal-backdrop" id="modal-confirm-clear-history">
+  <div class="modal-dialog" style="max-width: 380px;">
+    <div class="modal-header">
+      <div class="modal-title">Очистить историю?</div>
+    </div>
+    <div class="modal-body">
+      <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem;">
+        Все сохранённые тренировки и статистика рекордов будут удалены безвозвратно.
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-clear-history">
+        Отмена
+      </button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-clear-history" style="padding: 10px 18px;">
+        Удалить всё
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification element -->
+<div class="toast" id="toast-message"></div>
+
+<!-- ========================================== -->
+<!-- JAVASCRIPT APP LOGIC (NO FRAMEWORKS / CDN) -->
+<!-- ========================================== -->
+<script>
+(function() {
+  'use strict';
+
+  // ==========================================
+  // STORAGE KEYS & DEFAULT STATE
+  // ==========================================
+  const STORAGE_KEY_SETTINGS = 'amrap_settings_v1';
+  const STORAGE_KEY_HISTORY = 'amrap_history_v1';
+  const STORAGE_KEY_THEME = 'amrap_theme_v1';
+  const STORAGE_KEY_SOUND = 'amrap_sound_v1';
+
+  const defaultExercises = [
+    { id: 'ex_1', name: 'подтягивания', reps: 2 },
+    { id: 'ex_2', name: 'отжимания', reps: 5 },
+    { id: 'ex_3', name: 'приседания', reps: 10 }
+  ];
+
+  let state = {
+    durationMinutes: 20,
+    exercises: JSON.parse(JSON.stringify(defaultExercises)),
+    soundEnabled: true,
+    theme: 'dark' // 'dark' or 'light'
+  };
+
+  // Active workout runtime state
+  let workout = {
+    active: false,
+    paused: false,
+    durationMs: 20 * 60 * 1000,
+    startTime: 0,
+    pauseStartTime: 0,
+    totalPausedMs: 0,
+    completedRounds: 0,
+    roundSplits: [], // { round: 1, durationMs: 72000, timestamp: 123456 }
+    lastRoundTimestamp: 0,
+    timerInterval: null,
+    wakeLockSentinel: null,
+    alerted1Min: false,
+    alerted10Sec: false,
+    alerted3Sec: false,
+    alerted2Sec: false,
+    alerted1Sec: false
+  };
+
+  // Audio Context (Web Audio API)
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  function playTone(freq, type, duration, delay = 0) {
+    if (!state.soundEnabled) return;
+    try {
+      initAudio();
+      if (!audioCtx) return;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      const startTime = audioCtx.currentTime + delay;
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, startTime);
+      
+      gain.gain.setValueAtTime(0.001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.3, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    } catch (e) {
+      console.warn('Audio playback error', e);
+    }
+  }
+
+  function playSound(type) {
+    if (!state.soundEnabled) return;
+    switch(type) {
+      case 'start_short':
+        playTone(660, 'sine', 0.15);
+        break;
+      case 'start_go':
+        playTone(880, 'sine', 0.45);
+        break;
+      case 'round_done':
+        playTone(587.33, 'triangle', 0.08);
+        playTone(880, 'sine', 0.12, 0.06);
+        break;
+      case 'warning_minute':
+        playTone(440, 'sine', 0.2);
+        playTone(440, 'sine', 0.2, 0.25);
+        break;
+      case 'warning_10sec':
+        playTone(523.25, 'triangle', 0.15);
+        playTone(659.25, 'triangle', 0.15, 0.18);
+        break;
+      case 'countdown_tick':
+        playTone(520, 'sine', 0.12);
+        break;
+      case 'finish':
+        // Fanfare / chime
+        playTone(523.25, 'sine', 0.25, 0);
+        playTone(659.25, 'sine', 0.25, 0.15);
+        playTone(783.99, 'sine', 0.25, 0.3);
+        playTone(1046.50, 'sine', 0.6, 0.45);
+        break;
+    }
+  }
+
+  function vibrate(ms = 50) {
+    if ('vibrate' in navigator) {
+      try {
+        navigator.vibrate(ms);
+      } catch (e) {}
+    }
+  }
+
+  // Wake Lock API to prevent phone screen from going black
+  async function requestWakeLock() {
+    if ('wakeLock' in navigator) {
+      try {
+        workout.wakeLockSentinel = await navigator.wakeLock.request('screen');
+      } catch (err) {
+        console.warn('Wake Lock error:', err);
+      }
+    }
+  }
+
+  function releaseWakeLock() {
+    if (workout.wakeLockSentinel) {
+      try {
+        workout.wakeLockSentinel.release();
+        workout.wakeLockSentinel = null;
+      } catch (e) {}
+    }
+  }
+
+  // ==========================================
+  // PERSISTENCE (LOCAL STORAGE)
+  // ==========================================
+  function loadSettings() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        if (saved.durationMinutes) state.durationMinutes = saved.durationMinutes;
+        if (Array.isArray(saved.exercises) && saved.exercises.length > 0) {
+          state.exercises = saved.exercises;
+        }
+      }
+      const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
+      if (savedTheme) {
+        state.theme = savedTheme;
+      } else {
+        // System preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        state.theme = prefersDark ? 'dark' : 'light';
+      }
+
+      const savedSound = localStorage.getItem(STORAGE_KEY_SOUND);
+      if (savedSound !== null) {
+        state.soundEnabled = savedSound === 'true';
+      }
+    } catch (e) {
+      console.warn('Failed to load settings', e);
+    }
+  }
+
+  function saveSettings() {
+    try {
+      localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({
+        durationMinutes: state.durationMinutes,
+        exercises: state.exercises
+      }));
+      localStorage.setItem(STORAGE_KEY_THEME, state.theme);
+      localStorage.setItem(STORAGE_KEY_SOUND, state.soundEnabled.toString());
+    } catch (e) {
+      console.warn('Failed to save settings', e);
+    }
+  }
+
+  function getHistory() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveWorkoutToHistory(record) {
+    const history = getHistory();
+    history.unshift(record);
+    try {
+      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+    } catch (e) {
+      console.warn('Failed to save history', e);
+    }
+    updateOverviewStats();
+  }
+
+  // ==========================================
+  // FORMATTERS & CALCULATIONS
+  // ==========================================
+  function formatTime(totalSeconds) {
+    const s = Math.max(0, Math.floor(totalSeconds));
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function formatDurationMs(ms) {
+    if (!ms || ms <= 0) return '—';
+    const totalSecs = Math.round(ms / 1000);
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function formatDateRussian(isoString) {
+    const date = new Date(isoString);
+    const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    const d = date.getDate();
+    const m = months[date.getMonth()];
+    const y = date.getFullYear();
+    const h = date.getHours().toString().padStart(2, '0');
+    const min = date.getMinutes().toString().padStart(2, '0');
+    return `${d} ${m} ${y}, ${h}:${min}`;
+  }
+
+  function getPluralRounds(n) {
+    const abs = Math.abs(n) % 100;
+    const last = abs % 10;
+    if (abs > 10 && abs < 20) return 'КРУГОВ';
+    if (last > 1 && last < 5) return 'КРУГА';
+    if (last === 1) return 'КРУГ';
+    return 'КРУГОВ';
+  }
+
+  // ==========================================
+  // DOM ELEMENTS
+  // ==========================================
+  const screenSetup = document.getElementById('screen-setup');
+  const screenWorkout = document.getElementById('screen-workout');
+  const screenFinish = document.getElementById('screen-finish');
+
+  const headerTitle = document.getElementById('header-workout-name');
+  const setupTitle = document.getElementById('setup-title');
+  const btnSoundToggle = document.getElementById('btn-sound-toggle');
+  const btnThemeToggle = document.getElementById('btn-theme-toggle');
+  const btnOpenHistory = document.getElementById('btn-open-history');
+
+  const statTodayRounds = document.getElementById('stat-today-rounds');
+  const statRecordRounds = document.getElementById('stat-record-rounds');
+  const statTotalWorkouts = document.getElementById('stat-total-workouts');
+
+  const durationDisplay = document.getElementById('duration-display');
+  const inputCustomMinutes = document.getElementById('input-custom-minutes');
+  const durationPills = document.querySelectorAll('.duration-selector .btn-pill');
+  const exerciseListContainer = document.getElementById('exercise-list-container');
+  const totalRoundRepsCount = document.getElementById('total-round-reps-count');
+  const btnAddExercise = document.getElementById('btn-add-exercise');
+  const btnStartWorkout = document.getElementById('btn-start-workout');
+
+  // Workout Screen Elements
+  const workoutTimerDisplay = document.getElementById('workout-timer-display');
+  const workoutProgressFill = document.getElementById('workout-progress-fill');
+  const workoutTotalPreset = document.getElementById('workout-total-preset');
+  const liveCurrentRoundNum = document.getElementById('live-current-round-num');
+  const liveTaskPreview = document.getElementById('live-task-preview');
+  const btnRoundDone = document.getElementById('btn-round-done');
+  const liveRepsContainer = document.getElementById('live-reps-container');
+  const liveLastRoundTime = document.getElementById('live-last-round-time');
+  const liveAvgRoundTime = document.getElementById('live-avg-round-time');
+  const liveBestRoundTime = document.getElementById('live-best-round-time');
+  const btnUndoRound = document.getElementById('btn-undo-round');
+  const btnPauseToggle = document.getElementById('btn-pause-toggle');
+  const btnFinishEarly = document.getElementById('btn-finish-early');
+  const pauseOverlay = document.getElementById('pause-overlay');
+  const btnResumeWorkout = document.getElementById('btn-resume-workout');
+  const btnPauseExit = document.getElementById('btn-pause-exit');
+  const countdownOverlay = document.getElementById('countdown-overlay');
+  const countdownDigit = document.getElementById('countdown-digit');
+
+  // Finish Screen Elements
+  const finishRoundsCount = document.getElementById('finish-rounds-count');
+  const finishRoundsText = document.getElementById('finish-rounds-text');
+  const finishRecordBadgeContainer = document.getElementById('finish-record-badge-container');
+  const finishTotalRepsSum = document.getElementById('finish-total-reps-sum');
+  const finishExerciseRepsList = document.getElementById('finish-exercise-reps-list');
+  const finishTotalTime = document.getElementById('finish-total-time');
+  const finishAvgSplit = document.getElementById('finish-avg-split');
+  const finishBestSplit = document.getElementById('finish-best-split');
+  const finishLastSplit = document.getElementById('finish-last-split');
+  const finishSplitsCount = document.getElementById('finish-splits-count');
+  const finishSplitsList = document.getElementById('finish-splits-list');
+  const btnFinishToHome = document.getElementById('btn-finish-to-home');
+  const btnFinishViewHistory = document.getElementById('btn-finish-view-history');
+  const btnFinishShare = document.getElementById('btn-finish-share');
+
+  // Modals & Toast
+  const modalHistory = document.getElementById('modal-history');
+  const historyItemsContainer = document.getElementById('history-items-container');
+  const btnCloseHistory = document.getElementById('btn-close-history');
+  const btnCloseHistoryFooter = document.getElementById('btn-close-history-footer');
+  const btnClearHistory = document.getElementById('btn-clear-history');
+
+  const modalConfirmFinish = document.getElementById('modal-confirm-finish');
+  const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
+  const btnConfirmOk = document.getElementById('btn-confirm-ok');
+
+  const modalConfirmClearHistory = document.getElementById('modal-confirm-clear-history');
+  const btnCancelClearHistory = document.getElementById('btn-cancel-clear-history');
+  const btnConfirmClearHistory = document.getElementById('btn-confirm-clear-history');
+
+  const toastMessage = document.getElementById('toast-message');
+
+  // ==========================================
+  // THEME & SOUND CONTROLS
+  // ==========================================
+  function applyTheme(theme) {
+    state.theme = theme;
+    document.documentElement.setAttribute('data-theme', theme);
+    btnThemeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+    saveSettings();
+  }
+
+  function toggleTheme() {
+    applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+  }
+
+  function updateSoundUI() {
+    btnSoundToggle.textContent = state.soundEnabled ? '🔊' : '🔇';
+  }
+
+  function toggleSound() {
+    state.soundEnabled = !state.soundEnabled;
+    updateSoundUI();
+    saveSettings();
+    showToast(state.soundEnabled ? 'Звук включен' : 'Звук выключен');
+  }
+
+  function showToast(msg) {
+    toastMessage.textContent = msg;
+    toastMessage.classList.add('show');
+    setTimeout(() => {
+      toastMessage.classList.remove('show');
+    }, 2000);
+  }
+
+  // ==========================================
+  // SETUP SCREEN LOGIC
+  // ==========================================
+  function renderExercisesSetup() {
+    exerciseListContainer.innerHTML = '';
+    let totalReps = 0;
+
+    state.exercises.forEach((ex, idx) => {
+      totalReps += (parseInt(ex.reps, 10) || 0);
+
+      const item = document.createElement('div');
+      item.className = 'exercise-item';
+      item.innerHTML = `
+        <input type="text" class="exercise-name-input" value="${ex.name}" data-idx="${idx}" placeholder="Название упражнения" />
+        <div class="stepper">
+          <button type="button" class="btn-step" data-action="dec" data-idx="${idx}">−</button>
+          <input type="number" class="reps-input" value="${ex.reps}" min="1" max="999" data-idx="${idx}" />
+          <button type="button" class="btn-step" data-action="inc" data-idx="${idx}">+</button>
+        </div>
+        ${state.exercises.length > 1 ? `<button type="button" class="btn-del-exercise" data-idx="${idx}" title="Удалить">🗑️</button>` : ''}
+      `;
+      exerciseListContainer.appendChild(item);
+    });
+
+    totalRoundRepsCount.textContent = `${totalReps} повт/круг`;
+    updateTitles();
+  }
+
+  function updateTitles() {
+    const title = `${state.durationMinutes} MIN AMRAP`;
+    headerTitle.textContent = title;
+    setupTitle.textContent = title;
+    durationDisplay.textContent = formatTime(state.durationMinutes * 60);
+    inputCustomMinutes.value = state.durationMinutes;
+
+    durationPills.forEach(pill => {
+      const min = parseInt(pill.dataset.minutes, 10);
+      pill.classList.toggle('active', min === state.durationMinutes);
+    });
+  }
+
+  function updateOverviewStats() {
+    const history = getHistory();
+    statTotalWorkouts.textContent = history.length;
+
+    // All-time record for rounds
+    let record = 0;
+    let todayRounds = 0;
+    const todayDateString = new Date().toDateString();
+
+    history.forEach(h => {
+      if (h.completedRounds > record) {
+        record = h.completedRounds;
+      }
+      if (new Date(h.date).toDateString() === todayDateString) {
+        todayRounds += h.completedRounds;
+      }
+    });
+
+    statRecordRounds.textContent = record;
+    statTodayRounds.textContent = todayRounds;
+  }
+
+  // Setup Event Listeners
+  exerciseListContainer.addEventListener('input', (e) => {
+    const idx = parseInt(e.target.dataset.idx, 10);
+    if (isNaN(idx)) return;
+
+    if (e.target.classList.contains('exercise-name-input')) {
+      state.exercises[idx].name = e.target.value.trim() || 'Упражнение';
+      saveSettings();
+    } else if (e.target.classList.contains('reps-input')) {
+      const val = parseInt(e.target.value, 10) || 1;
+      state.exercises[idx].reps = Math.max(1, val);
+      saveSettings();
+      renderExercisesSetup();
+    }
+  });
+
+  exerciseListContainer.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const idx = parseInt(btn.dataset.idx, 10);
+    if (isNaN(idx)) return;
+
+    if (btn.classList.contains('btn-step')) {
+      const action = btn.dataset.action;
+      if (action === 'inc') {
+        state.exercises[idx].reps = (parseInt(state.exercises[idx].reps, 10) || 0) + 1;
+      } else if (action === 'dec') {
+        state.exercises[idx].reps = Math.max(1, (parseInt(state.exercises[idx].reps, 10) || 0) - 1);
+      }
+      saveSettings();
+      renderExercisesSetup();
+    } else if (btn.classList.contains('btn-del-exercise')) {
+      if (state.exercises.length > 1) {
+        state.exercises.splice(idx, 1);
+        saveSettings();
+        renderExercisesSetup();
+      }
+    }
+  });
+
+  btnAddExercise.addEventListener('click', () => {
+    state.exercises.push({
+      id: 'ex_' + Date.now(),
+      name: 'Упражнение',
+      reps: 10
+    });
+    saveSettings();
+    renderExercisesSetup();
+  });
+
+  durationPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      const min = parseInt(pill.dataset.minutes, 10);
+      state.durationMinutes = min;
+      updateTitles();
+      saveSettings();
+    });
+  });
+
+  inputCustomMinutes.addEventListener('change', () => {
+    let min = parseInt(inputCustomMinutes.value, 10) || 20;
+    min = Math.max(1, Math.min(180, min));
+    state.durationMinutes = min;
+    updateTitles();
+    saveSettings();
+  });
+
+  // ==========================================
+  // NAVIGATION & SCREENS
+  // ==========================================
+  function showScreen(screenId) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(screenId).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
+  // ==========================================
+  // WORKOUT EXECUTION LOGIC
+  // ==========================================
+  btnStartWorkout.addEventListener('click', () => {
+    initAudio();
+    startCountdownAndWorkout();
+  });
+
+  function startCountdownAndWorkout() {
+    showScreen('screen-workout');
+    countdownOverlay.classList.add('active');
+    
+    let count = 3;
+    countdownDigit.textContent = count;
+    playSound('countdown_tick');
+    vibrate(40);
+
+    const countInterval = setInterval(() => {
+      count--;
+      if (count > 0) {
+        countdownDigit.textContent = count;
+        playSound('countdown_tick');
+        vibrate(40);
+      } else {
+        clearInterval(countInterval);
+        countdownOverlay.classList.remove('active');
+        playSound('start_go');
+        vibrate([100, 50, 150]);
+        beginActiveWorkout();
+      }
+    }, 1000);
+  }
+
+  function beginActiveWorkout() {
+    workout.active = true;
+    workout.paused = false;
+    workout.durationMs = state.durationMinutes * 60 * 1000;
+    workout.startTime = Date.now();
+    workout.pauseStartTime = 0;
+    workout.totalPausedMs = 0;
+    workout.completedRounds = 0;
+    workout.roundSplits = [];
+    workout.lastRoundTimestamp = workout.startTime;
+
+    workout.alerted1Min = false;
+    workout.alerted10Sec = false;
+    workout.alerted3Sec = false;
+    workout.alerted2Sec = false;
+    workout.alerted1Sec = false;
+
+    workoutTotalPreset.textContent = `${state.durationMinutes}:00 AMRAP`;
+    pauseOverlay.classList.remove('active');
+
+    requestWakeLock();
+    renderLiveTaskPreview();
+    updateLiveMetrics();
+    runTimerTick();
+
+    if (workout.timerInterval) clearInterval(workout.timerInterval);
+    workout.timerInterval = setInterval(runTimerTick, 100);
+  }
+
+  function runTimerTick() {
+    if (!workout.active || workout.paused) return;
+
+    const now = Date.now();
+    const elapsedMs = now - workout.startTime - workout.totalPausedMs;
+    const remainingMs = Math.max(0, workout.durationMs - elapsedMs);
+    const remainingSecs = Math.ceil(remainingMs / 1000);
+
+    // Update Timer Display
+    workoutTimerDisplay.textContent = formatTime(remainingSecs);
+
+    // Progress Bar (100% at start, down to 0% at end)
+    const progressFraction = Math.max(0, Math.min(1, remainingMs / workout.durationMs));
+    workoutProgressFill.style.width = `${(progressFraction * 100).toFixed(1)}%`;
+
+    // Audio cues at key milestones
+    if (remainingSecs <= 60 && !workout.alerted1Min && workout.durationMs > 90000) {
+      workout.alerted1Min = true;
+      playSound('warning_minute');
+      showToast('Осталась 1 минута!');
+    }
+
+    if (remainingSecs <= 10 && !workout.alerted10Sec && remainingSecs > 0) {
+      workout.alerted10Sec = true;
+      playSound('warning_10sec');
+      workoutTimerDisplay.classList.add('warning');
+    }
+
+    if (remainingSecs === 3 && !workout.alerted3Sec) {
+      workout.alerted3Sec = true;
+      playSound('countdown_tick');
+    }
+    if (remainingSecs === 2 && !workout.alerted2Sec) {
+      workout.alerted2Sec = true;
+      playSound('countdown_tick');
+    }
+    if (remainingSecs === 1 && !workout.alerted1Sec) {
+      workout.alerted1Sec = true;
+      playSound('countdown_tick');
+    }
+
+    // Finished!
+    if (remainingMs <= 0) {
+      finishWorkout(true);
+    }
+  }
+
+  // Render Exercise Task preview in workout
+  function renderLiveTaskPreview() {
+    liveTaskPreview.innerHTML = state.exercises.map(ex => 
+      `<span class="round-task-tag">${ex.reps} × ${ex.name}</span>`
+    ).join('');
+  }
+
+  // Handle "КРУГ ЗАВЕРШЁН" Button Click
+  btnRoundDone.addEventListener('click', () => {
+    if (!workout.active || workout.paused) return;
+
+    const now = Date.now();
+    workout.completedRounds++;
+    
+    const splitDurationMs = now - workout.lastRoundTimestamp;
+    workout.roundSplits.push({
+      round: workout.completedRounds,
+      durationMs: splitDurationMs,
+      timestamp: now
+    });
+    workout.lastRoundTimestamp = now;
+
+    // Haptics & Audio
+    vibrate(70);
+    playSound('round_done');
+
+    // Visual button bounce
+    btnRoundDone.style.transform = 'scale(0.94)';
+    setTimeout(() => {
+      btnRoundDone.style.transform = '';
+    }, 80);
+
+    updateLiveMetrics();
+  });
+
+  // Undo Last Round (in case of mis-tap)
+  btnUndoRound.addEventListener('click', () => {
+    if (!workout.active || workout.completedRounds <= 0) return;
+    
+    workout.completedRounds--;
+    workout.roundSplits.pop();
+    
+    const lastSplit = workout.roundSplits[workout.roundSplits.length - 1];
+    workout.lastRoundTimestamp = lastSplit ? lastSplit.timestamp : workout.startTime;
+
+    showToast('Круг отменен');
+    vibrate(30);
+    updateLiveMetrics();
+  });
+
+  function updateLiveMetrics() {
+    // Current Round number (round in progress is completedRounds + 1)
+    liveCurrentRoundNum.textContent = workout.completedRounds + 1;
+
+    // Reps summary
+    let repsHtml = `
+      <div class="rep-stat-item">
+        <div class="rep-stat-val" style="color: var(--accent-primary);">${workout.completedRounds}</div>
+        <div class="rep-stat-lbl">Кругов</div>
+      </div>
+    `;
+
+    state.exercises.forEach(ex => {
+      const totalExReps = workout.completedRounds * ex.reps;
+      repsHtml += `
+        <div class="rep-stat-item">
+          <div class="rep-stat-val">${totalExReps}</div>
+          <div class="rep-stat-lbl">${ex.name}</div>
+        </div>
+      `;
+    });
+
+    liveRepsContainer.innerHTML = repsHtml;
+
+    // Splits calculation
+    if (workout.roundSplits.length > 0) {
+      const lastSplitMs = workout.roundSplits[workout.roundSplits.length - 1].durationMs;
+      liveLastRoundTime.textContent = formatDurationMs(lastSplitMs);
+
+      const totalSplitMs = workout.roundSplits.reduce((acc, cur) => acc + cur.durationMs, 0);
+      const avgSplitMs = totalSplitMs / workout.roundSplits.length;
+      liveAvgRoundTime.textContent = formatDurationMs(avgSplitMs);
+
+      const bestSplitMs = Math.min(...workout.roundSplits.map(s => s.durationMs));
+      liveBestRoundTime.textContent = formatDurationMs(bestSplitMs);
+    } else {
+      liveLastRoundTime.textContent = '—';
+      liveAvgRoundTime.textContent = '—';
+      liveBestRoundTime.textContent = '—';
+    }
+  }
+
+  // ==========================================
+  // PAUSE & RESUME CONTROLS
+  // ==========================================
+  btnPauseToggle.addEventListener('click', togglePause);
+  btnResumeWorkout.addEventListener('click', togglePause);
+
+  function togglePause() {
+    if (!workout.active) return;
+
+    if (!workout.paused) {
+      workout.paused = true;
+      workout.pauseStartTime = Date.now();
+      pauseOverlay.classList.add('active');
+    } else {
+      const pausedDuration = Date.now() - workout.pauseStartTime;
+      workout.totalPausedMs += pausedDuration;
+      workout.lastRoundTimestamp += pausedDuration; // Shift last round timestamp
+      workout.paused = false;
+      pauseOverlay.classList.remove('active');
+    }
+  }
+
+  // ==========================================
+  // FINISH WORKOUT LOGIC
+  // ==========================================
+  btnFinishEarly.addEventListener('click', () => {
+    modalConfirmFinish.classList.add('active');
+  });
+
+  btnPauseExit.addEventListener('click', () => {
+    pauseOverlay.classList.remove('active');
+    finishWorkout(false);
+  });
+
+  btnConfirmCancel.addEventListener('click', () => {
+    modalConfirmFinish.classList.remove('active');
+  });
+
+  btnConfirmOk.addEventListener('click', () => {
+    modalConfirmFinish.classList.remove('active');
+    finishWorkout(false);
+  });
+
+  function finishWorkout(naturalFinish = true) {
+    if (!workout.active) return;
+
+    if (workout.timerInterval) {
+      clearInterval(workout.timerInterval);
+      workout.timerInterval = null;
+    }
+
+    workout.active = false;
+    workoutTimerDisplay.classList.remove('warning');
+    releaseWakeLock();
+
+    playSound('finish');
+    vibrate([200, 100, 200, 100, 300]);
+
+    // Calculate totals
+    const actualElapsedMs = naturalFinish ? workout.durationMs : Math.min(workout.durationMs, Date.now() - workout.startTime - workout.totalPausedMs);
+    const completedRounds = workout.completedRounds;
+
+    let bestSplitMs = 0;
+    let avgSplitMs = 0;
+    let lastSplitMs = 0;
+
+    if (workout.roundSplits.length > 0) {
+      const splitDurations = workout.roundSplits.map(s => s.durationMs);
+      bestSplitMs = Math.min(...splitDurations);
+      avgSplitMs = splitDurations.reduce((a, b) => a + b, 0) / splitDurations.length;
+      lastSplitMs = splitDurations[splitDurations.length - 1];
+    }
+
+    // Check PR against history
+    const pastHistory = getHistory();
+    let maxPreviousRounds = 0;
+    pastHistory.forEach(h => {
+      if (h.completedRounds > maxPreviousRounds) {
+        maxPreviousRounds = h.completedRounds;
+      }
+    });
+
+    const isNewRecord = completedRounds > 0 && completedRounds > maxPreviousRounds;
+
+    // Save Record object
+    const record = {
+      id: 'wod_' + Date.now(),
+      date: new Date().toISOString(),
+      presetMinutes: state.durationMinutes,
+      totalDurationMs: actualElapsedMs,
+      completedRounds: completedRounds,
+      exercises: state.exercises.map(ex => ({
+        name: ex.name,
+        repsPerRound: ex.reps,
+        totalReps: completedRounds * ex.reps
+      })),
+      splits: workout.roundSplits,
+      bestSplitMs: bestSplitMs,
+      avgSplitMs: avgSplitMs,
+      isNewRecord: isNewRecord
+    };
+
+    saveWorkoutToHistory(record);
+
+    // Display Finish Screen
+    renderFinishScreen(record, isNewRecord);
+    showScreen('screen-finish');
+  }
+
+  function renderFinishScreen(record, isNewRecord) {
+    finishRoundsCount.textContent = record.completedRounds;
+    finishRoundsText.textContent = getPluralRounds(record.completedRounds);
+
+    if (isNewRecord) {
+      finishRecordBadgeContainer.innerHTML = `<div class="record-badge">🔥 НОВЫЙ РЕКОРД!</div>`;
+    } else {
+      finishRecordBadgeContainer.innerHTML = '';
+    }
+
+    // Exercises & Reps
+    let totalRepsSum = 0;
+    finishExerciseRepsList.innerHTML = record.exercises.map(ex => {
+      totalRepsSum += ex.totalReps;
+      return `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--border-color);">
+          <span style="font-weight: 700; color: var(--text-primary);">${ex.name}</span>
+          <span style="font-family: var(--font-mono); font-weight: 800; color: var(--accent-primary);">${ex.totalReps} повт</span>
+        </div>
+      `;
+    }).join('');
+
+    finishTotalRepsSum.textContent = `${totalRepsSum} повт. суммарно`;
+    finishTotalTime.textContent = formatDurationMs(record.totalDurationMs);
+    finishAvgSplit.textContent = formatDurationMs(record.avgSplitMs);
+    finishBestSplit.textContent = formatDurationMs(record.bestSplitMs);
+    finishLastSplit.textContent = record.splits.length > 0 ? formatDurationMs(record.splits[record.splits.length - 1].durationMs) : '—';
+
+    // Splits List
+    finishSplitsCount.textContent = `${record.splits.length} кругов`;
+    if (record.splits.length > 0) {
+      finishSplitsList.innerHTML = record.splits.map(s => {
+        const isBest = s.durationMs === record.bestSplitMs;
+        return `
+          <div class="split-row ${isBest ? 'best-split' : ''}">
+            <span>Круг ${s.round} ${isBest ? '⚡ Лучший' : ''}</span>
+            <span style="font-family: var(--font-mono);">${formatDurationMs(s.durationMs)}</span>
+          </div>
+        `;
+      }).join('');
+    } else {
+      finishSplitsList.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Нет завершённых кругов</div>`;
+    }
+  }
+
+  // Finish Screen Buttons
+  btnFinishToHome.addEventListener('click', () => {
+    updateOverviewStats();
+    showScreen('screen-setup');
+  });
+
+  btnFinishViewHistory.addEventListener('click', () => {
+    openHistoryModal();
+  });
+
+  btnFinishShare.addEventListener('click', () => {
+    const history = getHistory();
+    const latest = history[0];
+    if (!latest) return;
+
+    let text = `🏋️ Мой результат ${latest.presetMinutes} MIN AMRAP:\n`;
+    text += `🔥 Завершено кругов: ${latest.completedRounds}\n`;
+    latest.exercises.forEach(ex => {
+      text += `• ${ex.name}: ${ex.totalReps} повт.\n`;
+    });
+    text += `⏱ Лучший круг: ${formatDurationMs(latest.bestSplitMs)}\n`;
+    text += `⏱ Средний круг: ${formatDurationMs(latest.avgSplitMs)}\n`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Результат скопирован в буфер!');
+      }).catch(() => {
+        showToast('Не удалось скопировать');
+      });
+    } else {
+      showToast('Буфер обмена недоступен');
+    }
+  });
+
+  // ==========================================
+  // HISTORY MODAL LOGIC
+  // ==========================================
+  btnOpenHistory.addEventListener('click', openHistoryModal);
+  btnCloseHistory.addEventListener('click', closeHistoryModal);
+  btnCloseHistoryFooter.addEventListener('click', closeHistoryModal);
+
+  function openHistoryModal() {
+    renderHistoryList();
+    modalHistory.classList.add('active');
+  }
+
+  function closeHistoryModal() {
+    modalHistory.classList.remove('active');
+    modalConfirmClearHistory.classList.remove('active');
+  }
+
+  function renderHistoryList() {
+    const history = getHistory();
+    if (history.length === 0) {
+      historyItemsContainer.innerHTML = `
+        <div style="text-align: center; padding: 32px 16px; color: var(--text-muted);">
+          <div style="font-size: 2.5rem; margin-bottom: 8px;">🏋️</div>
+          <div style="font-weight: 700;">Пока нет сохранённых тренировок</div>
+          <div style="font-size: 0.85rem; margin-top: 4px;">Завершите первую тренировку, чтобы увидеть прогресс</div>
+        </div>
+      `;
+      return;
+    }
+
+    historyItemsContainer.innerHTML = history.map((item, idx) => {
+      const exStr = item.exercises.map(e => `${e.totalReps} ${e.name}`).join(' • ');
+      const itemId = item.id || ('wod_' + (item.date ? new Date(item.date).getTime() : idx));
+      return `
+        <div class="history-card-item" data-id="${itemId}">
+          <div class="history-card-header">
+            <span class="history-date">${formatDateRussian(item.date)}</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="history-rounds">${item.completedRounds} ${getPluralRounds(item.completedRounds)}</span>
+              <button type="button" class="btn-del-history-item" data-id="${itemId}" title="Удалить эту тренировку" aria-label="Удалить запись">
+                🗑️
+              </button>
+            </div>
+          </div>
+          <div class="history-details">
+            <div><strong>Время:</strong> ${formatDurationMs(item.totalDurationMs)} (${item.presetMinutes} мин AMRAP)</div>
+            <div><strong>Упражнения:</strong> ${exStr}</div>
+            ${item.bestSplitMs ? `<div><strong>Лучший круг:</strong> ${formatDurationMs(item.bestSplitMs)} • <strong>Средний:</strong> ${formatDurationMs(item.avgSplitMs)}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Delete single history item
+  historyItemsContainer.addEventListener('click', (e) => {
+    const delBtn = e.target.closest('.btn-del-history-item');
+    if (!delBtn) return;
+    const id = delBtn.dataset.id;
+    if (!id) return;
+    deleteHistoryItem(id);
+  });
+
+  function deleteHistoryItem(id) {
+    let history = getHistory();
+    const beforeCount = history.length;
+    history = history.filter((item, idx) => {
+      const itemId = item.id || ('wod_' + (item.date ? new Date(item.date).getTime() : idx));
+      return itemId !== id;
+    });
+
+    if (history.length < beforeCount) {
+      try {
+        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+      } catch (e) {
+        console.warn('Failed to save history', e);
+      }
+      renderHistoryList();
+      updateOverviewStats();
+      showToast('Тренировка удалена');
+    }
+  }
+
+  // Clear all history modal logic
+  btnClearHistory.addEventListener('click', () => {
+    const history = getHistory();
+    if (history.length === 0) {
+      showToast('История уже пуста');
+      return;
+    }
+    modalConfirmClearHistory.classList.add('active');
+  });
+
+  btnCancelClearHistory.addEventListener('click', () => {
+    modalConfirmClearHistory.classList.remove('active');
+  });
+
+  btnConfirmClearHistory.addEventListener('click', () => {
+    localStorage.removeItem(STORAGE_KEY_HISTORY);
+    modalConfirmClearHistory.classList.remove('active');
+    renderHistoryList();
+    updateOverviewStats();
+    showToast('Вся история очищена');
+  });
+
+  // Top Bar global buttons
+  btnThemeToggle.addEventListener('click', toggleTheme);
+  btnSoundToggle.addEventListener('click', toggleSound);
+
+  // Background visibility handling for smooth timer accuracy
+  document.addEventListener('visibilitychange', () => {
+    if (workout.active && !workout.paused) {
+      runTimerTick();
+    }
+  });
+
+  // ==========================================
+  // INITIALIZATION
+  // ==========================================
+  loadSettings();
+  applyTheme(state.theme);
+  updateSoundUI();
+  renderExercisesSetup();
+  updateOverviewStats();
+
+})();
+</script>
+</body>
+</html>
