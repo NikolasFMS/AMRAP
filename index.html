@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#0d1117" />
+  <meta name="theme-color" content="#000000" />
   <title>AMRAP — Спортивный таймер и счетчик кругов</title>
   <style>
-    /* CSS Reset & Variables */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -16,8 +15,8 @@
     }
 
     :root {
-      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       
       /* Dark Theme (Default) */
       --bg-primary: #0b0f17;
@@ -25,63 +24,73 @@
       --bg-card: #1c2636;
       --bg-card-hover: #243044;
       --border-color: #2a374d;
-      
       --text-primary: #f3f6fa;
       --text-secondary: #94a3b8;
       --text-muted: #64748b;
-      
-      --accent-primary: #f59e0b; /* Amber */
-      --accent-primary-hover: #d97706;
+      --accent-primary: #f59e0b;
       --accent-glow: rgba(245, 158, 11, 0.25);
-      
       --accent-green: #10b981;
       --accent-green-glow: rgba(16, 185, 129, 0.25);
-      --accent-green-bg: #064e3b;
-      
       --accent-red: #ef4444;
-      --accent-red-hover: #dc2626;
-      
       --accent-blue: #3b82f6;
-      --accent-blue-hover: #2563eb;
-      
-      --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-      --shadow-md: 0 6px 20px rgba(0,0,0,0.4);
-      --shadow-lg: 0 12px 36px rgba(0,0,0,0.6);
-      
-      --radius-sm: 8px;
-      --radius-md: 14px;
-      --radius-lg: 20px;
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
       --radius-pill: 9999px;
     }
 
+    /* OLED Black Theme */
+    [data-theme="oled"] {
+      --bg-primary: #000000;
+      --bg-secondary: #0a0a0a;
+      --bg-card: #141414;
+      --bg-card-hover: #1f1f1f;
+      --border-color: #2e2e2e;
+      --text-primary: #ffffff;
+      --text-secondary: #a3a3a3;
+      --text-muted: #737373;
+      --accent-primary: #fbbf24;
+      --accent-glow: rgba(251, 191, 36, 0.3);
+      --accent-green: #22c55e;
+      --accent-green-glow: rgba(34, 197, 94, 0.3);
+      --accent-red: #f87171;
+      --accent-blue: #60a5fa;
+    }
+
+    /* Cyber / Neon Theme */
+    [data-theme="cyber"] {
+      --bg-primary: #050d0a;
+      --bg-secondary: #0a1c15;
+      --bg-card: #102a20;
+      --bg-card-hover: #183e2f;
+      --border-color: #1e523e;
+      --text-primary: #e6fff4;
+      --text-secondary: #6ee7b7;
+      --text-muted: #34d399;
+      --accent-primary: #10b981;
+      --accent-glow: rgba(16, 185, 129, 0.35);
+      --accent-green: #00ff88;
+      --accent-green-glow: rgba(0, 255, 136, 0.35);
+      --accent-red: #ff3366;
+      --accent-blue: #00e5ff;
+    }
+
+    /* Light Theme */
     [data-theme="light"] {
       --bg-primary: #f8fafc;
       --bg-secondary: #ffffff;
       --bg-card: #f1f5f9;
       --bg-card-hover: #e2e8f0;
       --border-color: #cbd5e1;
-      
       --text-primary: #0f172a;
       --text-secondary: #475569;
       --text-muted: #94a3b8;
-      
       --accent-primary: #d97706;
-      --accent-primary-hover: #b45309;
       --accent-glow: rgba(217, 119, 6, 0.2);
-      
       --accent-green: #059669;
       --accent-green-glow: rgba(5, 150, 105, 0.2);
-      --accent-green-bg: #d1fae5;
-      
       --accent-red: #dc2626;
-      --accent-red-hover: #b91c1c;
-      
       --accent-blue: #2563eb;
-      --accent-blue-hover: #1d4ed8;
-      
-      --shadow-sm: 0 2px 6px rgba(0,0,0,0.06);
-      --shadow-md: 0 6px 16px rgba(0,0,0,0.08);
-      --shadow-lg: 0 12px 28px rgba(0,0,0,0.12);
     }
 
     body {
@@ -95,7 +104,6 @@
       align-items: center;
       justify-content: flex-start;
       overflow-x: hidden;
-      transition: background-color 0.25s ease, color 0.25s ease;
       touch-action: manipulation;
     }
 
@@ -106,58 +114,63 @@
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
-      padding: 16px;
+      padding: 14px 12px;
       position: relative;
     }
 
-    /* Top Bar Header */
+    /* Header */
     .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 0 16px;
-      gap: 8px;
+      padding: 4px 0 14px;
+      gap: 6px;
     }
 
     .brand-title {
-      font-size: 1.15rem;
-      font-weight: 800;
+      font-size: 1.1rem;
+      font-weight: 900;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .brand-tag {
       background-color: var(--accent-primary);
       color: #000;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 900;
       padding: 2px 6px;
       border-radius: var(--radius-sm);
       letter-spacing: 0.08em;
+      flex-shrink: 0;
     }
 
     .icon-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-shrink: 0;
     }
 
     .btn-icon {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      width: 40px;
-      height: 40px;
+      width: 38px;
+      height: 38px;
       border-radius: var(--radius-md);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       transition: all 0.15s ease;
     }
 
@@ -166,13 +179,18 @@
       background: var(--bg-card-hover);
     }
 
+    .btn-icon.active-mode {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+    }
+
     /* Screen Views */
     .screen {
       display: none;
       flex-direction: column;
       flex: 1;
       width: 100%;
-      animation: fadeIn 0.2s ease-out;
+      animation: fadeIn 0.18s ease-out;
     }
 
     .screen.active {
@@ -180,97 +198,126 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(6px); }
+      from { opacity: 0; transform: translateY(5px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Card Components */
+    /* Cards */
     .card {
       background-color: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 20px;
-      margin-bottom: 16px;
-      box-shadow: var(--shadow-sm);
+      padding: 16px;
+      margin-bottom: 14px;
     }
 
     .card-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .card-title {
-      font-size: 0.9rem;
-      font-weight: 700;
+      font-size: 0.85rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
       color: var(--text-secondary);
     }
 
-    /* Setup Screen Elements */
+    /* Setup Banner & Stats */
     .hero-banner {
       text-align: center;
-      padding: 24px 16px;
-      margin-bottom: 16px;
+      padding: 18px 12px;
+      margin-bottom: 12px;
       background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
     }
 
     .hero-title {
-      font-size: 2.2rem;
+      font-size: 1.85rem;
       font-weight: 900;
       letter-spacing: -0.02em;
-      line-height: 1.1;
-      margin-bottom: 6px;
-      color: var(--text-primary);
+      line-height: 1.15;
+      margin-bottom: 4px;
     }
 
     .hero-subtitle {
-      font-size: 0.95rem;
+      font-size: 0.88rem;
       color: var(--text-secondary);
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    /* Stats summary strip */
     .stats-strip {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 16px;
+      gap: 6px;
+      margin-bottom: 12px;
     }
 
     .stat-box {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 12px 8px;
+      padding: 10px 4px;
       text-align: center;
     }
 
     .stat-box-val {
-      font-size: 1.25rem;
-      font-weight: 800;
+      font-size: 1.2rem;
+      font-weight: 900;
       font-family: var(--font-mono);
       color: var(--accent-primary);
     }
 
     .stat-box-lbl {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       color: var(--text-muted);
       text-transform: uppercase;
       font-weight: 700;
       margin-top: 2px;
     }
 
+    /* Presets Strip */
+    .presets-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 10px;
+      scrollbar-width: none;
+    }
+    .presets-scroll::-webkit-scrollbar { display: none; }
+
+    .preset-chip {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.12s ease;
+    }
+
+    .preset-chip:active, .preset-chip.active {
+      background: var(--accent-primary);
+      border-color: var(--accent-primary);
+      color: #000;
+      font-weight: 800;
+    }
+
     /* Duration Selector */
     .duration-selector {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      margin-bottom: 10px;
     }
 
     .btn-pill {
@@ -279,30 +326,27 @@
       color: var(--text-primary);
       font-family: var(--font-mono);
       font-weight: 700;
-      font-size: 0.95rem;
-      padding: 10px 4px;
+      font-size: 0.9rem;
+      padding: 8px 2px;
       border-radius: var(--radius-md);
       cursor: pointer;
       text-align: center;
-      transition: all 0.15s ease;
     }
 
     .btn-pill.active {
       background: var(--accent-primary);
       border-color: var(--accent-primary);
       color: #000;
-      box-shadow: 0 0 12px var(--accent-glow);
     }
 
     .custom-time-input-group {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-top: 8px;
     }
 
     .custom-time-input-group label {
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       color: var(--text-secondary);
       font-weight: 600;
     }
@@ -312,25 +356,20 @@
       border: 1px solid var(--border-color);
       color: var(--text-primary);
       font-family: var(--font-mono);
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
-      padding: 8px 12px;
+      padding: 6px 8px;
       border-radius: var(--radius-sm);
-      width: 90px;
+      width: 75px;
       text-align: center;
       user-select: text;
     }
 
-    .input-number:focus {
-      outline: none;
-      border-color: var(--accent-primary);
-    }
-
-    /* Exercises List Setup */
+    /* Exercises List */
     .exercise-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .exercise-item {
@@ -340,17 +379,20 @@
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 10px 14px;
-      gap: 12px;
+      padding: 6px 8px;
+      gap: 6px;
+      min-width: 0;
     }
 
     .exercise-name-input {
       background: transparent;
       border: none;
       color: var(--text-primary);
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 700;
-      flex: 1;
+      flex: 1 1 0%;
+      min-width: 0;
+      width: 0;
       user-select: text;
     }
 
@@ -360,24 +402,27 @@
     }
 
     .stepper {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 1px;
+      flex-shrink: 0;
+      padding: 1px;
     }
 
     .btn-step {
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
+      color: var(--text-primary);
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
-      color: var(--text-primary);
       border-radius: var(--radius-sm);
-      font-size: 1.2rem;
-      font-weight: 700;
+      font-size: 1.05rem;
+      font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .btn-step:active {
@@ -386,15 +431,24 @@
     }
 
     .reps-input {
-      width: 44px;
+      width: 32px;
       text-align: center;
       background: transparent;
       border: none;
       color: var(--accent-primary);
       font-family: var(--font-mono);
-      font-size: 1.25rem;
+      font-size: 1.05rem;
       font-weight: 800;
+      padding: 0;
+      flex-shrink: 0;
       user-select: text;
+      -moz-appearance: textfield;
+    }
+
+    .reps-input::-webkit-outer-spin-button,
+    .reps-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
 
     .btn-del-exercise {
@@ -402,32 +456,41 @@
       border: none;
       color: var(--text-muted);
       cursor: pointer;
-      padding: 4px;
-      font-size: 1.1rem;
+      font-size: 0.95rem;
+      width: 26px;
+      height: 26px;
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
+      border-radius: var(--radius-sm);
     }
 
-    .btn-del-exercise:hover {
+    .btn-del-exercise:hover, .btn-del-exercise:active {
       color: var(--accent-red);
+      background: rgba(239, 68, 68, 0.15);
     }
 
-    .btn-add-exercise {
+    .exercise-actions-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .btn-sub-action {
+      flex: 1;
       background: transparent;
       border: 1px dashed var(--border-color);
       color: var(--text-secondary);
-      padding: 10px;
+      padding: 8px;
       border-radius: var(--radius-md);
       font-weight: 700;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
       text-align: center;
-      margin-top: 6px;
-      transition: all 0.15s ease;
     }
 
-    .btn-add-exercise:hover {
+    .btn-sub-action:hover, .btn-sub-action:active {
       border-color: var(--accent-primary);
       color: var(--accent-primary);
     }
@@ -438,93 +501,94 @@
       color: #000000;
       border: none;
       border-radius: var(--radius-lg);
-      padding: 20px 24px;
-      font-size: 1.35rem;
+      padding: 18px 20px;
+      font-size: 1.3rem;
       font-weight: 900;
       letter-spacing: 0.04em;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 8px 24px var(--accent-glow);
+      box-shadow: 0 6px 20px var(--accent-glow);
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: auto;
-      margin-bottom: 12px;
-      transition: transform 0.1s ease, filter 0.15s ease;
+      margin-bottom: 8px;
     }
 
     .btn-cta:active {
       transform: scale(0.97);
-      filter: brightness(0.9);
     }
 
     /* ============================================================ */
-    /* WORKOUT SCREEN (HIGH CONTRAST & ULTRA VISIBLE FOR SWEATY USE) */
+    /* ACTIVE WORKOUT SCREEN                                        */
     /* ============================================================ */
 
     #screen-workout {
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
 
     .workout-header {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 16px 20px;
-      box-shadow: var(--shadow-sm);
+      padding: 14px 16px;
     }
 
     .workout-meta-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
+      gap: 5px;
+      font-size: 0.72rem;
       font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 4px 10px;
-      border-radius: var(--radius-pill);
+      letter-spacing: 0.06em;
+      padding: 3px 7px;
+      border-radius: var(--radius-sm);
       background: rgba(16, 185, 129, 0.15);
       color: var(--accent-green);
     }
 
     .status-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background-color: var(--accent-green);
       animation: pulseDot 1.5s infinite;
     }
 
     @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.8); }
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
     }
 
     .timer-huge {
       font-family: var(--font-mono);
-      font-size: 4rem;
+      font-size: 3.8rem;
       font-weight: 900;
       line-height: 1;
       text-align: center;
       letter-spacing: -0.03em;
-      margin: 8px 0;
+      margin: 4px 0;
       color: var(--text-primary);
       font-variant-numeric: tabular-nums;
     }
 
     .timer-huge.warning {
+      color: var(--accent-primary);
+    }
+
+    .timer-huge.overtime {
       color: var(--accent-red);
-      animation: flashTimer 1s infinite;
+      animation: flashTimer 1.2s infinite;
     }
 
     @keyframes flashTimer {
@@ -532,14 +596,13 @@
       50% { opacity: 0.5; }
     }
 
-    /* Progress bar */
     .progress-bar-container {
       width: 100%;
-      height: 12px;
+      height: 10px;
       background: var(--bg-card);
       border-radius: var(--radius-pill);
       overflow: hidden;
-      margin-top: 10px;
+      margin-top: 8px;
       border: 1px solid var(--border-color);
     }
 
@@ -551,37 +614,71 @@
       transition: width 0.3s linear;
     }
 
-    /* Round Center Card & Giant Button */
+    /* Pace Indicator Banner */
+    .pace-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .pace-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .pace-badge.ahead {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-green);
+    }
+    .pace-badge.behind {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--accent-red);
+    }
+    .pace-badge.neutral {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+    }
+
+    /* Center Giant Button */
     .round-hero-section {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       flex: 1;
-      gap: 14px;
-      margin: 4px 0;
+      gap: 10px;
+      margin: 2px 0;
     }
 
     .current-round-banner {
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--text-primary);
       text-align: center;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 8px;
     }
 
     .round-number-pill {
       background: var(--accent-primary);
       color: #000;
-      padding: 4px 16px;
+      padding: 3px 14px;
       border-radius: var(--radius-md);
       font-family: var(--font-mono);
-      box-shadow: 0 0 16px var(--accent-glow);
     }
 
     .round-task-preview {
@@ -589,55 +686,51 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: center;
-      gap: 8px;
-      font-size: 0.95rem;
+      gap: 6px;
+      font-size: 0.88rem;
       font-weight: 700;
       color: var(--text-secondary);
       text-align: center;
-      max-width: 90%;
+      max-width: 95%;
     }
 
     .round-task-tag {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: var(--radius-sm);
       color: var(--text-primary);
     }
 
-    /* GIANT HIT BUTTON */
+    /* Giant Button */
     .btn-round-finish {
       width: 100%;
-      min-height: 140px;
+      min-height: 130px;
       background: linear-gradient(180deg, #10b981 0%, #059669 100%);
       color: #ffffff;
       border: 3px solid #34d399;
       border-radius: var(--radius-lg);
-      font-size: 1.85rem;
+      font-size: 1.75rem;
       font-weight: 900;
       letter-spacing: 0.05em;
       text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 30px var(--accent-green-glow);
+      box-shadow: 0 8px 24px var(--accent-green-glow);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
+      gap: 4px;
       touch-action: manipulation;
-      position: relative;
-      overflow: hidden;
     }
 
     .btn-round-finish:active {
       transform: scale(0.96);
       filter: brightness(1.15);
-      box-shadow: 0 4px 12px var(--accent-green-glow);
     }
 
     .btn-round-sub {
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 700;
       opacity: 0.9;
       letter-spacing: 0.08em;
@@ -648,8 +741,7 @@
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 14px 16px;
-      box-shadow: var(--shadow-sm);
+      padding: 12px 14px;
     }
 
     .live-reps-row {
@@ -657,25 +749,20 @@
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-around;
-      gap: 10px;
-      padding-bottom: 10px;
+      gap: 8px;
+      padding-bottom: 8px;
       border-bottom: 1px solid var(--border-color);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
-    .rep-stat-item {
-      text-align: center;
-    }
-
+    .rep-stat-item { text-align: center; }
     .rep-stat-val {
-      font-size: 1.35rem;
+      font-size: 1.25rem;
       font-weight: 900;
       font-family: var(--font-mono);
-      color: var(--text-primary);
     }
-
     .rep-stat-lbl {
-      font-size: 0.7rem;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
@@ -684,256 +771,245 @@
     .live-splits-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
+      gap: 4px;
       text-align: center;
     }
 
     .split-stat-val {
       font-family: var(--font-mono);
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: var(--accent-primary);
     }
 
     .split-stat-lbl {
-      font-size: 0.65rem;
+      font-size: 0.62rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
       margin-top: 2px;
     }
 
-    /* In-workout bottom controls */
+    /* Bottom workout controls */
     .workout-controls-bottom {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-workout-ctrl {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 12px 6px;
+      padding: 10px 4px;
       border-radius: var(--radius-md);
       font-weight: 800;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      transition: all 0.15s ease;
+      gap: 4px;
     }
 
-    .btn-workout-ctrl:active {
-      transform: scale(0.96);
-      background: var(--bg-card-hover);
-    }
+    .btn-workout-ctrl:active { transform: scale(0.96); }
+    .btn-workout-ctrl.danger { color: var(--accent-red); border-color: rgba(239, 68, 68, 0.4); }
+    .btn-workout-ctrl.warning { color: var(--accent-primary); border-color: rgba(245, 158, 11, 0.4); }
 
-    .btn-workout-ctrl.danger {
-      color: var(--accent-red);
-      border-color: rgba(239, 68, 68, 0.4);
-    }
-
-    .btn-workout-ctrl.warning {
-      color: var(--accent-primary);
-      border-color: rgba(245, 158, 11, 0.4);
-    }
-
-    /* Pause Overlay Modal */
-    .pause-overlay {
+    /* Overlays */
+    .pause-overlay, .countdown-overlay {
       display: none;
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(11, 15, 23, 0.92);
-      backdrop-filter: blur(8px);
+      top: 0; left: 0; right: 0; bottom: 0;
       z-index: 50;
       border-radius: var(--radius-lg);
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 20px;
       text-align: center;
-      animation: fadeIn 0.15s ease;
     }
 
-    .pause-overlay.active {
+    .pause-overlay {
+      background: rgba(11, 15, 23, 0.94);
+      backdrop-filter: blur(6px);
+    }
+
+    .pause-overlay.active, .countdown-overlay.active {
       display: flex;
     }
 
-    .pause-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--accent-primary);
-      margin-bottom: 20px;
-    }
-
-    .btn-resume {
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #fff;
-      border: none;
-      width: 100%;
-      max-width: 320px;
-      padding: 20px;
-      border-radius: var(--radius-lg);
-      font-size: 1.4rem;
-      font-weight: 900;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 8px 24px var(--accent-green-glow);
-      margin-bottom: 12px;
-    }
-
-    .btn-resume:active {
-      transform: scale(0.96);
-    }
-
-    /* Countdown overlay (3-2-1 Go!) */
     .countdown-overlay {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
       background: var(--bg-primary);
       z-index: 60;
-      border-radius: var(--radius-lg);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .countdown-overlay.active {
-      display: flex;
     }
 
     .countdown-num {
-      font-size: 8rem;
+      font-size: 7.5rem;
       font-weight: 900;
       font-family: var(--font-mono);
       color: var(--accent-primary);
       line-height: 1;
-      animation: popNum 0.9s infinite;
-    }
-
-    .countdown-lbl {
-      font-size: 1.2rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-secondary);
-      margin-top: 12px;
-    }
-
-    @keyframes popNum {
-      0% { transform: scale(0.6); opacity: 0; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
     }
 
     /* ============================================================ */
-    /* FINISH / RESULTS SCREEN                                      */
+    /* RESULTS & FINISH SCREEN                                      */
     /* ============================================================ */
 
     .finish-hero {
       text-align: center;
-      padding: 28px 16px;
+      padding: 22px 14px;
       background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .finish-headline {
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: 800;
       letter-spacing: 0.1em;
       text-transform: uppercase;
       color: var(--text-secondary);
-      margin-bottom: 8px;
+      margin-bottom: 4px;
     }
 
     .finish-rounds-big {
-      font-size: 3.8rem;
+      font-size: 3.4rem;
       font-weight: 900;
       font-family: var(--font-mono);
       line-height: 1;
       color: var(--accent-primary);
-      letter-spacing: -0.02em;
     }
 
     .finish-rounds-label {
-      font-size: 1.3rem;
+      font-size: 1.15rem;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--text-primary);
       margin-top: 4px;
     }
 
     .record-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
       color: #000;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 900;
-      padding: 6px 16px;
+      padding: 5px 14px;
       border-radius: var(--radius-pill);
-      letter-spacing: 0.08em;
-      margin-top: 14px;
-      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
-      animation: pulseRecord 1.5s infinite;
+      margin-top: 10px;
     }
 
-    @keyframes pulseRecord {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+    /* Unfinished round partial reps logger */
+    .partial-reps-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .partial-reps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .partial-rep-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 6px 10px;
+      gap: 8px;
+    }
+
+    .partial-rep-name {
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex: 1;
+    }
+
+    .partial-steppers {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .btn-quick-add {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .btn-quick-add:active {
+      background: var(--accent-primary);
+      color: #000;
     }
 
     .results-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
     .result-item {
       background: var(--bg-secondary);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
+      padding: 10px 12px;
     }
 
     .result-item-val {
       font-family: var(--font-mono);
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 800;
-      color: var(--text-primary);
     }
 
     .result-item-lbl {
-      font-size: 0.75rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
       color: var(--text-muted);
       margin-top: 2px;
     }
 
+    /* SVG Pace Chart */
+    .chart-container {
+      width: 100%;
+      height: 140px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 8px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      position: relative;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
     .splits-history-list {
-      max-height: 180px;
+      max-height: 160px;
       overflow-y: auto;
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
@@ -945,30 +1021,21 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 12px;
+      padding: 6px 10px;
       border-bottom: 1px solid var(--border-color);
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
     }
 
-    .split-row:last-child {
-      border-bottom: none;
-    }
+    .split-row:last-child { border-bottom: none; }
+    .split-row.best-split { background: rgba(16, 185, 129, 0.15); color: var(--accent-green); }
 
-    .split-row.best-split {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--accent-green);
-    }
-
-    /* History & Info Modals */
+    /* Modals */
     .modal-backdrop {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.7);
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.75);
       backdrop-filter: blur(4px);
       z-index: 100;
       align-items: center;
@@ -976,9 +1043,7 @@
       padding: 16px;
     }
 
-    .modal-backdrop.active {
-      display: flex;
-    }
+    .modal-backdrop.active { display: flex; }
 
     .modal-dialog {
       background: var(--bg-secondary);
@@ -989,146 +1054,97 @@
       max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow-lg);
-      animation: modalPop 0.15s ease-out;
-    }
-
-    @keyframes modalPop {
-      from { transform: scale(0.95); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      box-shadow: 0 12px 36px rgba(0,0,0,0.5);
     }
 
     .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-bottom: 1px solid var(--border-color);
     }
 
     .modal-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .modal-body {
-      padding: 16px 20px;
+      padding: 14px 18px;
       overflow-y: auto;
       flex: 1;
     }
 
     .modal-footer {
-      padding: 14px 20px;
+      padding: 12px 18px;
       border-top: 1px solid var(--border-color);
       display: flex;
       justify-content: flex-end;
-      gap: 10px;
+      gap: 8px;
     }
 
     .history-card-item {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
-      margin-bottom: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
     }
 
     .history-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .btn-del-history-item {
       background: transparent;
-      border: 1px solid transparent;
+      border: none;
       color: var(--text-muted);
       cursor: pointer;
       font-size: 1rem;
-      padding: 4px 8px;
+      padding: 2px 6px;
       border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.15s ease;
-      line-height: 1;
     }
 
     .btn-del-history-item:hover, .btn-del-history-item:active {
       color: var(--accent-red);
       background: rgba(239, 68, 68, 0.15);
-      border-color: rgba(239, 68, 68, 0.3);
-    }
-
-    .history-date {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .history-rounds {
-      font-size: 1.1rem;
-      font-weight: 900;
-      font-family: var(--font-mono);
-      color: var(--accent-primary);
-    }
-
-    .history-details {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      line-height: 1.4;
     }
 
     .btn-secondary {
       background: var(--bg-card);
       border: 1px solid var(--border-color);
       color: var(--text-primary);
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-radius: var(--radius-md);
       font-weight: 700;
+      font-size: 0.85rem;
       cursor: pointer;
     }
 
-    .btn-secondary:active {
-      background: var(--bg-card-hover);
-    }
-
-    /* Toast Notification */
     .toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 20px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
       background: var(--text-primary);
       color: var(--bg-primary);
-      padding: 12px 20px;
+      padding: 10px 18px;
       border-radius: var(--radius-pill);
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 800;
-      box-shadow: var(--shadow-lg);
       z-index: 200;
-      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.2s ease-out;
       pointer-events: none;
     }
 
     .toast.show {
       transform: translateX(-50%) translateY(0);
-    }
-
-    /* Scrollbar styling */
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: var(--bg-card);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: var(--border-color);
-      border-radius: var(--radius-pill);
     }
   </style>
 </head>
@@ -1138,34 +1154,35 @@
 
   <!-- TOP BAR -->
   <header class="top-bar">
-    <div class="brand-title" id="app-heading-title">
-      <span class="brand-tag">WOD</span>
-      <span id="header-workout-name">AMRAP</span>
+    <div class="brand-title">
+      <span class="brand-tag">AMRAP</span>
+      <span id="header-workout-name">20 MIN AMRAP</span>
     </div>
     <div class="icon-actions">
-      <button class="btn-icon" id="btn-sound-toggle" title="Звук" aria-label="Переключить звук">
+      <button class="btn-icon" id="btn-voice-toggle" title="Голосовой помощник (озвучка кругов и времени)" aria-label="Голосовой помощник">
+        🗣️
+      </button>
+      <button class="btn-icon" id="btn-sound-toggle" title="Звуковые сигналы" aria-label="Звуковые сигналы">
         🔊
       </button>
-      <button class="btn-icon" id="btn-theme-toggle" title="Тема оформления" aria-label="Переключить тему">
+      <button class="btn-icon" id="btn-theme-toggle" title="Смена темы (Dark, OLED, Cyber, Light)" aria-label="Тема">
         🌓
       </button>
-      <button class="btn-icon" id="btn-open-history" title="История тренировок" aria-label="Открыть историю">
+      <button class="btn-icon" id="btn-open-history" title="История тренировок" aria-label="История">
         📋
       </button>
     </div>
   </header>
 
-  <!-- ========================================== -->
-  <!-- SCREEN 1: PRE-WORKOUT SETUP               -->
-  <!-- ========================================== -->
+  <!-- SCREEN 1: PRE-WORKOUT SETUP -->
   <main id="screen-setup" class="screen active">
 
     <div class="hero-banner">
-      <h1 class="hero-title" id="setup-title">AMRAP</h1>
+      <h1 class="hero-title" id="setup-title">20 MIN AMRAP</h1>
       <p class="hero-subtitle">As Many Rounds As Possible • Максимум кругов</p>
     </div>
 
-    <!-- Quick Stats Strip -->
+    <!-- Quick Stats -->
     <div class="stats-strip">
       <div class="stat-box">
         <div class="stat-box-val" id="stat-today-rounds">0</div>
@@ -1181,11 +1198,24 @@
       </div>
     </div>
 
+    <!-- WOD Presets Strip -->
+    <section class="card" style="padding-bottom: 10px;">
+      <div class="card-header" style="margin-bottom: 8px;">
+        <span class="card-title">Готовые WOD и программы</span>
+        <button type="button" id="btn-save-as-preset" style="background:transparent; border:none; color:var(--accent-primary); font-size:0.75rem; font-weight:800; cursor:pointer;">
+          + Сохранить текущий
+        </button>
+      </div>
+      <div class="presets-scroll" id="presets-container">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
     <!-- Duration Setup -->
     <section class="card">
       <div class="card-header">
         <span class="card-title">Продолжительность</span>
-        <span class="stat-box-val" style="font-size: 1rem;" id="duration-display">20:00</span>
+        <span class="stat-box-val" style="font-size: 0.95rem;" id="duration-display">20:00</span>
       </div>
       <div class="duration-selector">
         <button type="button" class="btn-pill" data-minutes="10">10 мин</button>
@@ -1199,16 +1229,19 @@
       </div>
     </section>
 
-    <!-- Exercises List Setup -->
+    <!-- Exercises Setup -->
     <section class="card">
       <div class="card-header">
         <span class="card-title">Упражнения в одном круге</span>
-        <span id="total-round-reps-count" style="font-size: 0.8rem; font-weight:700; color: var(--accent-primary);">17 повт/круг</span>
+        <span id="total-round-reps-count" style="font-size: 0.8rem; font-weight:800; color: var(--accent-primary);">17 повт/круг</span>
       </div>
       <div class="exercise-list" id="exercise-list-container">
-        <!-- Generated dynamically -->
+        <!-- Dynamic exercises list -->
       </div>
-      <button type="button" class="btn-add-exercise" id="btn-add-exercise">+ Добавить упражнение</button>
+      <div class="exercise-actions-row">
+        <button type="button" class="btn-sub-action" id="btn-add-exercise">+ Добавить упражнение</button>
+        <button type="button" class="btn-sub-action" id="btn-reset-exercises">↺ Сбросить</button>
+      </div>
     </section>
 
     <!-- Start Button -->
@@ -1218,9 +1251,7 @@
 
   </main>
 
-  <!-- ========================================== -->
-  <!-- SCREEN 2: ACTIVE WORKOUT                  -->
-  <!-- ========================================== -->
+  <!-- SCREEN 2: ACTIVE WORKOUT -->
   <section id="screen-workout" class="screen">
 
     <!-- Top Timer & Progress -->
@@ -1228,9 +1259,9 @@
       <div class="workout-meta-row">
         <div class="status-badge">
           <span class="status-dot"></span>
-          <span id="workout-status-text">ИДЕТ ТРЕНИРОВКА</span>
+          <span id="workout-status-text">ТРЕНИРОВКА</span>
         </div>
-        <div style="font-size: 0.8rem; font-weight: 800; font-family: var(--font-mono);" id="workout-total-preset">
+        <div style="font-size: 0.78rem; font-weight: 800; font-family: var(--font-mono);" id="workout-total-preset">
           20:00 AMRAP
         </div>
       </div>
@@ -1240,31 +1271,33 @@
       <div class="progress-bar-container">
         <div class="progress-bar-fill" id="workout-progress-fill"></div>
       </div>
+
+      <!-- Real-time Pace Delta Indicator -->
+      <div class="pace-banner" id="pace-banner">
+        <span id="pace-cur-split">Текущий круг: 00:00</span>
+        <span class="pace-badge neutral" id="pace-delta-badge">⚡ Расчёт темпа...</span>
+      </div>
     </div>
 
-    <!-- Round Center Hero & Huge Tap Target -->
+    <!-- Center Giant Button -->
     <div class="round-hero-section">
       <div class="current-round-banner">
         <span>КРУГ</span>
         <span class="round-number-pill" id="live-current-round-num">1</span>
       </div>
 
-      <div class="round-task-preview" id="live-task-preview">
-        <!-- Rendered dynamically -->
-      </div>
+      <div class="round-task-preview" id="live-task-preview"></div>
 
-      <!-- HUGE ROUND FINISH BUTTON -->
+      <!-- Giant button -->
       <button type="button" class="btn-round-finish" id="btn-round-done" aria-label="Завершить круг">
         <span>КРУГ ЗАВЕРШЁН</span>
-        <span class="btn-round-sub">НАЖМИ ДЛЯ ФИКСАЦИИ</span>
+        <span class="btn-round-sub">НАЖМИ ИЛИ ПРОБЕЛ</span>
       </button>
     </div>
 
-    <!-- Live Stats Summary -->
+    <!-- Live Stats -->
     <div class="live-stats-card">
-      <div class="live-reps-row" id="live-reps-container">
-        <!-- Rendered dynamically (rounds, pullups, pushups, squats) -->
-      </div>
+      <div class="live-reps-row" id="live-reps-container"></div>
       <div class="live-splits-row">
         <div>
           <div class="split-stat-val" id="live-last-round-time">—</div>
@@ -1281,29 +1314,23 @@
       </div>
     </div>
 
-    <!-- In-workout control buttons -->
+    <!-- Workout Controls -->
     <div class="workout-controls-bottom">
-      <button type="button" class="btn-workout-ctrl warning" id="btn-undo-round" title="Отменить последнее нажатие">
-        ↺ Отмена
-      </button>
-      <button type="button" class="btn-workout-ctrl" id="btn-pause-toggle">
-        ⏸ Пауза
-      </button>
-      <button type="button" class="btn-workout-ctrl danger" id="btn-finish-early">
-        ⏹ Завершить
-      </button>
+      <button type="button" class="btn-workout-ctrl warning" id="btn-undo-round">↺ Отмена</button>
+      <button type="button" class="btn-workout-ctrl" id="btn-pause-toggle">⏸ Пауза</button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-finish-early">⏹ Завершить</button>
     </div>
 
     <!-- Pause Overlay -->
     <div class="pause-overlay" id="pause-overlay">
-      <div class="pause-title">ПАУЗА</div>
-      <p style="color: var(--text-secondary); margin-bottom: 24px; font-weight:600;">
+      <div style="font-size: 2.2rem; font-weight:900; color:var(--accent-primary); margin-bottom:12px;">ПАУЗА</div>
+      <p style="color: var(--text-secondary); margin-bottom: 20px; font-weight:600; font-size:0.9rem;">
         Время тренировки остановлено
       </p>
-      <button type="button" class="btn-resume" id="btn-resume-workout">
+      <button type="button" class="btn-cta" style="width:100%; max-width:280px; margin-bottom:10px;" id="btn-resume-workout">
         ▶ ПРОДОЛЖИТЬ
       </button>
-      <button type="button" class="btn-workout-ctrl danger" style="padding: 14px 20px; font-size: 0.95rem;" id="btn-pause-exit">
+      <button type="button" class="btn-secondary" id="btn-pause-exit" style="color:var(--accent-red);">
         Завершить тренировку
       </button>
     </div>
@@ -1311,35 +1338,28 @@
     <!-- 3-2-1 Countdown Overlay -->
     <div class="countdown-overlay" id="countdown-overlay">
       <div class="countdown-num" id="countdown-digit">3</div>
-      <div class="countdown-lbl">ПРИГОТОВЬТЕСЬ!</div>
+      <div style="font-size:1.1rem; font-weight:800; color:var(--text-secondary); margin-top:8px;">ПРИГОТОВЬТЕСЬ!</div>
     </div>
 
   </section>
 
-  <!-- ========================================== -->
-  <!-- SCREEN 3: FINISH / RESULTS                -->
-  <!-- ========================================== -->
+  <!-- SCREEN 3: RESULTS / FINISH -->
   <section id="screen-finish" class="screen">
 
     <div class="finish-hero">
       <div class="finish-headline">ТРЕНИРОВКА ЗАВЕРШЕНА</div>
       <div class="finish-rounds-big" id="finish-rounds-count">0</div>
       <div class="finish-rounds-label" id="finish-rounds-text">ПОЛНЫХ КРУГОВ</div>
-      
-      <div id="finish-record-badge-container">
-        <!-- New record badge if applicable -->
-      </div>
+      <div id="finish-record-badge-container"></div>
     </div>
 
-    <!-- Repetitions Summary Card -->
+    <!-- Exercises Reps Summary -->
     <div class="card">
       <div class="card-header">
         <span class="card-title">Итог по упражнениям</span>
         <span id="finish-total-reps-sum" style="font-weight: 800; color: var(--accent-primary);">0 повторений</span>
       </div>
-      <div id="finish-exercise-reps-list" style="display: flex; flex-direction: column; gap: 8px;">
-        <!-- Filled dynamically -->
-      </div>
+      <div id="finish-exercise-reps-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
     </div>
 
     <!-- Metrics Grid -->
@@ -1350,7 +1370,7 @@
       </div>
       <div class="result-item">
         <div class="result-item-val" id="finish-avg-split">—</div>
-        <div class="result-item-lbl">Среднее время круга</div>
+        <div class="result-item-lbl">Средний круг</div>
       </div>
       <div class="result-item">
         <div class="result-item-val" id="finish-best-split">—</div>
@@ -1362,29 +1382,34 @@
       </div>
     </div>
 
-    <!-- Round Splits Details -->
-    <div class="card" style="padding-bottom: 12px;">
-      <div class="card-header" style="margin-bottom: 6px;">
-        <span class="card-title">Сплиты по кругам</span>
-        <span id="finish-splits-count" style="font-size: 0.8rem; color: var(--text-muted);">0 кругов</span>
+    <!-- Pace Chart Card -->
+    <div class="card">
+      <div class="card-header" style="margin-bottom: 2px;">
+        <span class="card-title">График темпа и сплитов</span>
+        <span id="chart-legend" style="font-size:0.7rem; color:var(--text-muted);">длительность кругов (сек)</span>
       </div>
-      <div class="splits-history-list" id="finish-splits-list">
-        <!-- Filled dynamically -->
+      <div class="chart-container" id="finish-chart-container">
+        <!-- SVG generated dynamically -->
       </div>
     </div>
 
+    <!-- Round Splits Details -->
+    <div class="card" style="padding-bottom: 10px;">
+      <div class="card-header" style="margin-bottom: 4px;">
+        <span class="card-title">Таблица сплитов</span>
+        <span id="finish-splits-count" style="font-size: 0.75rem; color: var(--text-muted);">0 кругов</span>
+      </div>
+      <div class="splits-history-list" id="finish-splits-list"></div>
+    </div>
+
     <!-- Action Buttons -->
-    <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px; margin-bottom: 20px;">
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 6px; margin-bottom: 18px;">
       <button type="button" class="btn-cta" id="btn-finish-to-home" style="margin-bottom: 0;">
         В ГЛАВНОЕ МЕНЮ
       </button>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button type="button" class="btn-secondary" id="btn-finish-view-history">
-          📋 История
-        </button>
-        <button type="button" class="btn-secondary" id="btn-finish-share">
-          📤 Поделиться
-        </button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button type="button" class="btn-secondary" id="btn-finish-view-history">📋 История</button>
+        <button type="button" class="btn-secondary" id="btn-finish-share">📤 Поделиться</button>
       </div>
     </div>
 
@@ -1392,109 +1417,188 @@
 
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL: HISTORY                             -->
-<!-- ========================================== -->
+<!-- MODAL: HISTORY -->
 <div class="modal-backdrop" id="modal-history">
   <div class="modal-dialog">
     <div class="modal-header">
       <div class="modal-title">История тренировок</div>
       <button type="button" class="btn-icon" id="btn-close-history" style="width: 32px; height: 32px;">✕</button>
     </div>
-    <div class="modal-body" id="history-items-container">
-      <!-- Generated dynamically -->
-    </div>
+    <div class="modal-body" id="history-items-container"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-workout-ctrl danger" id="btn-clear-history" style="padding: 8px 14px;">
-        Очистить историю
+      <button type="button" class="btn-workout-ctrl danger" id="btn-clear-history" style="padding: 6px 12px; font-size:0.75rem;">
+        Очистить всё
       </button>
-      <button type="button" class="btn-secondary" id="btn-close-history-footer">
-        Закрыть
-      </button>
+      <button type="button" class="btn-secondary" id="btn-close-history-footer">Закрыть</button>
     </div>
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL: CONFIRM FINISH EARLY                -->
-<!-- ========================================== -->
-<div class="modal-backdrop" id="modal-confirm-finish">
+<!-- MODAL: SAVE CUSTOM PRESET -->
+<div class="modal-backdrop" id="modal-save-preset">
   <div class="modal-dialog" style="max-width: 380px;">
     <div class="modal-header">
-      <div class="modal-title">Завершить тренировку?</div>
+      <div class="modal-title">Сохранить программу</div>
+      <button type="button" class="btn-icon" id="btn-close-save-preset" style="width: 32px; height: 32px;">✕</button>
     </div>
     <div class="modal-body">
-      <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem;">
-        Текущие завершённые круги и статистика будут сохранены в результатах.
-      </p>
+      <label style="font-size:0.85rem; font-weight:700; color:var(--text-secondary); display:block; margin-bottom:6px;">
+        Название шаблона:
+      </label>
+      <input type="text" id="input-preset-name" class="input-number" style="width:100%; text-align:left; font-family:inherit; font-size:1rem; padding:8px 10px;" placeholder="Например: Воркаут на турниках" />
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-confirm-cancel">
-        Продолжить
-      </button>
-      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-ok" style="padding: 10px 18px;">
-        Да, завершить
+      <button type="button" class="btn-secondary" id="btn-cancel-save-preset">Отмена</button>
+      <button type="button" class="btn-cta" id="btn-confirm-save-preset" style="padding:8px 16px; font-size:0.9rem; margin:0;">
+        Сохранить
       </button>
     </div>
   </div>
 </div>
 
-<!-- ========================================== -->
-<!-- MODAL: CONFIRM CLEAR ALL HISTORY          -->
-<!-- ========================================== -->
+<!-- MODAL: THEME PICKER -->
+<div class="modal-backdrop" id="modal-theme-picker">
+  <div class="modal-dialog" style="max-width: 360px;">
+    <div class="modal-header">
+      <div class="modal-title">Тема оформления</div>
+      <button type="button" class="btn-icon" id="btn-close-theme" style="width: 32px; height: 32px;">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:8px;">
+      <button type="button" class="btn-pill" data-theme-val="dark" style="text-align:left; padding:10px 14px; font-family:inherit;">
+        🌌 Тёмная (Dark Slate)
+      </button>
+      <button type="button" class="btn-pill" data-theme-val="oled" style="text-align:left; padding:10px 14px; font-family:inherit;">
+        ⬛ OLED Black (Чистый чёрный / Экономия батареи)
+      </button>
+      <button type="button" class="btn-pill" data-theme-val="cyber" style="text-align:left; padding:10px 14px; font-family:inherit;">
+        💚 Cyber Neon (Неоновый изумруд)
+      </button>
+      <button type="button" class="btn-pill" data-theme-val="light" style="text-align:left; padding:10px 14px; font-family:inherit;">
+        ☀️ Светлая (Light Sport)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CONFIRM CLEAR ALL HISTORY -->
 <div class="modal-backdrop" id="modal-confirm-clear-history">
-  <div class="modal-dialog" style="max-width: 380px;">
+  <div class="modal-dialog" style="max-width: 360px;">
     <div class="modal-header">
       <div class="modal-title">Очистить историю?</div>
     </div>
     <div class="modal-body">
-      <p style="color: var(--text-secondary); line-height: 1.5; font-size: 0.95rem;">
+      <p style="color: var(--text-secondary); line-height: 1.4; font-size: 0.9rem;">
         Все сохранённые тренировки и статистика рекордов будут удалены безвозвратно.
       </p>
     </div>
     <div class="modal-footer">
-      <button type="button" class="btn-secondary" id="btn-cancel-clear-history">
-        Отмена
-      </button>
-      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-clear-history" style="padding: 10px 18px;">
+      <button type="button" class="btn-secondary" id="btn-cancel-clear-history">Отмена</button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-clear-history" style="padding: 8px 16px;">
         Удалить всё
       </button>
     </div>
   </div>
 </div>
 
-<!-- Toast notification element -->
+<!-- MODAL: CONFIRM FINISH WORKOUT -->
+<div class="modal-backdrop" id="modal-confirm-finish">
+  <div class="modal-dialog" style="max-width: 360px;">
+    <div class="modal-header">
+      <div class="modal-title" id="finish-modal-title">Завершить тренировку?</div>
+    </div>
+    <div class="modal-body">
+      <p style="color: var(--text-secondary); line-height: 1.4; font-size: 0.9rem;" id="finish-modal-desc">
+        Зафиксировать текущее время и количество выполненных кругов и перейти к итоговому экрану?
+      </p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn-secondary" id="btn-cancel-finish-workout">Продолжить</button>
+      <button type="button" class="btn-workout-ctrl danger" id="btn-confirm-finish-workout" style="padding: 8px 16px;">
+        Завершить
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
 <div class="toast" id="toast-message"></div>
 
-<!-- ========================================== -->
-<!-- JAVASCRIPT APP LOGIC (NO FRAMEWORKS / CDN) -->
-<!-- ========================================== -->
 <script>
 (function() {
   'use strict';
 
-  // ==========================================
-  // STORAGE KEYS & DEFAULT STATE
-  // ==========================================
-  const STORAGE_KEY_SETTINGS = 'amrap_settings_v1';
-  const STORAGE_KEY_HISTORY = 'amrap_history_v1';
-  const STORAGE_KEY_THEME = 'amrap_theme_v1';
-  const STORAGE_KEY_SOUND = 'amrap_sound_v1';
+  // STORAGE KEYS
+  const STORAGE_KEY_SETTINGS = 'amrap_settings_v2';
+  const STORAGE_KEY_HISTORY = 'amrap_history_v2';
+  const STORAGE_KEY_THEME = 'amrap_theme_v2';
+  const STORAGE_KEY_SOUND = 'amrap_sound_v2';
+  const STORAGE_KEY_VOICE = 'amrap_voice_v2';
+  const STORAGE_KEY_PRESETS = 'amrap_custom_presets_v2';
 
-  const defaultExercises = [
-    { id: 'ex_1', name: 'подтягивания', reps: 2 },
-    { id: 'ex_2', name: 'отжимания', reps: 5 },
-    { id: 'ex_3', name: 'приседания', reps: 10 }
+  // Standard WOD Presets
+  const standardPresets = [
+    {
+      id: 'wod_classic',
+      name: '20 MIN AMRAP',
+      durationMinutes: 20,
+      exercises: [
+        { id: 'ex_1', name: 'подтягивания', reps: 2 },
+        { id: 'ex_2', name: 'отжимания', reps: 5 },
+        { id: 'ex_3', name: 'приседания', reps: 10 }
+      ]
+    },
+    {
+      id: 'wod_cindy',
+      name: 'Cindy',
+      durationMinutes: 20,
+      exercises: [
+        { id: 'ex_1', name: 'подтягивания', reps: 5 },
+        { id: 'ex_2', name: 'отжимания', reps: 10 },
+        { id: 'ex_3', name: 'приседания', reps: 15 }
+      ]
+    },
+    {
+      id: 'wod_mary',
+      name: 'Mary',
+      durationMinutes: 20,
+      exercises: [
+        { id: 'ex_1', name: 'отжимания в стойке', reps: 5 },
+        { id: 'ex_2', name: 'пистолетики', reps: 10 },
+        { id: 'ex_3', name: 'подтягивания', reps: 15 }
+      ]
+    },
+    {
+      id: 'wod_burpee_squat',
+      name: 'Burpee & Squat',
+      durationMinutes: 15,
+      exercises: [
+        { id: 'ex_1', name: 'берпи', reps: 7 },
+        { id: 'ex_2', name: 'приседания', reps: 14 },
+        { id: 'ex_3', name: 'пресс', reps: 21 }
+      ]
+    },
+    {
+      id: 'wod_pull_push',
+      name: 'Pull & Push',
+      durationMinutes: 10,
+      exercises: [
+        { id: 'ex_1', name: 'подтягивания', reps: 5 },
+        { id: 'ex_2', name: 'отжимания', reps: 10 }
+      ]
+    }
   ];
 
   let state = {
+    workoutName: '20 MIN AMRAP',
     durationMinutes: 20,
-    exercises: JSON.parse(JSON.stringify(defaultExercises)),
+    exercises: JSON.parse(JSON.stringify(standardPresets[0].exercises)),
     soundEnabled: true,
-    theme: 'dark' // 'dark' or 'light'
+    voiceEnabled: true,
+    theme: 'dark', // 'dark', 'oled', 'cyber', 'light'
+    customPresets: []
   };
 
-  // Active workout runtime state
+  // Workout runtime state
   let workout = {
     active: false,
     paused: false,
@@ -1507,11 +1611,14 @@
     lastRoundTimestamp: 0,
     timerInterval: null,
     wakeLockSentinel: null,
+    isOvertime: false,
     alerted1Min: false,
+    alerted30Sec: false,
     alerted10Sec: false,
     alerted3Sec: false,
     alerted2Sec: false,
-    alerted1Sec: false
+    alerted1Sec: false,
+    alertedTimeUp: false
   };
 
   // Audio Context (Web Audio API)
@@ -1520,13 +1627,9 @@
   function initAudio() {
     if (!audioCtx) {
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (AudioContextClass) {
-        audioCtx = new AudioContextClass();
-      }
+      if (AudioContextClass) audioCtx = new AudioContextClass();
     }
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
-    }
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
   }
 
   function playTone(freq, type, duration, delay = 0) {
@@ -1536,154 +1639,134 @@
       if (!audioCtx) return;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
-      
       const startTime = audioCtx.currentTime + delay;
       osc.type = type;
       osc.frequency.setValueAtTime(freq, startTime);
-      
       gain.gain.setValueAtTime(0.001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.3, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.25, startTime + 0.02);
       gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-      
       osc.connect(gain);
       gain.connect(audioCtx.destination);
-      
       osc.start(startTime);
       osc.stop(startTime + duration);
-    } catch (e) {
-      console.warn('Audio playback error', e);
-    }
+    } catch (e) {}
   }
 
   function playSound(type) {
     if (!state.soundEnabled) return;
     switch(type) {
-      case 'start_short':
-        playTone(660, 'sine', 0.15);
-        break;
-      case 'start_go':
-        playTone(880, 'sine', 0.45);
-        break;
+      case 'start_short': playTone(660, 'sine', 0.15); break;
+      case 'start_go': playTone(880, 'sine', 0.4); break;
       case 'round_done':
         playTone(587.33, 'triangle', 0.08);
         playTone(880, 'sine', 0.12, 0.06);
         break;
-      case 'warning_minute':
-        playTone(440, 'sine', 0.2);
-        playTone(440, 'sine', 0.2, 0.25);
-        break;
-      case 'warning_10sec':
-        playTone(523.25, 'triangle', 0.15);
-        playTone(659.25, 'triangle', 0.15, 0.18);
-        break;
-      case 'countdown_tick':
-        playTone(520, 'sine', 0.12);
-        break;
       case 'finish':
-        // Fanfare / chime
-        playTone(523.25, 'sine', 0.25, 0);
-        playTone(659.25, 'sine', 0.25, 0.15);
-        playTone(783.99, 'sine', 0.25, 0.3);
-        playTone(1046.50, 'sine', 0.6, 0.45);
+        playTone(523.25, 'sine', 0.2, 0);
+        playTone(659.25, 'sine', 0.2, 0.15);
+        playTone(783.99, 'sine', 0.2, 0.3);
+        playTone(1046.50, 'sine', 0.5, 0.45);
         break;
     }
+  }
+
+  // Web Speech Synthesis (Голосовой ассистент)
+  function speak(text) {
+    if (!state.voiceEnabled || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'ru-RU';
+      utterance.rate = 1.05;
+      utterance.pitch = 1.0;
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {}
   }
 
   function vibrate(ms = 50) {
     if ('vibrate' in navigator) {
-      try {
-        navigator.vibrate(ms);
-      } catch (e) {}
+      try { navigator.vibrate(ms); } catch (e) {}
     }
   }
 
-  // Wake Lock API to prevent phone screen from going black
   async function requestWakeLock() {
     if ('wakeLock' in navigator) {
-      try {
-        workout.wakeLockSentinel = await navigator.wakeLock.request('screen');
-      } catch (err) {
-        console.warn('Wake Lock error:', err);
-      }
+      try { workout.wakeLockSentinel = await navigator.wakeLock.request('screen'); } catch (e) {}
     }
   }
 
   function releaseWakeLock() {
     if (workout.wakeLockSentinel) {
-      try {
-        workout.wakeLockSentinel.release();
-        workout.wakeLockSentinel = null;
-      } catch (e) {}
+      try { workout.wakeLockSentinel.release(); workout.wakeLockSentinel = null; } catch (e) {}
     }
   }
 
-  // ==========================================
-  // PERSISTENCE (LOCAL STORAGE)
-  // ==========================================
+  // LOCAL STORAGE
   function loadSettings() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
       if (raw) {
         const saved = JSON.parse(raw);
+        if (saved.workoutName) state.workoutName = saved.workoutName;
         if (saved.durationMinutes) state.durationMinutes = saved.durationMinutes;
-        if (Array.isArray(saved.exercises) && saved.exercises.length > 0) {
-          state.exercises = saved.exercises;
-        }
+        if (Array.isArray(saved.exercises) && saved.exercises.length > 0) state.exercises = saved.exercises;
       }
+      const savedPresets = localStorage.getItem(STORAGE_KEY_PRESETS);
+      if (savedPresets) state.customPresets = JSON.parse(savedPresets);
+
       const savedTheme = localStorage.getItem(STORAGE_KEY_THEME);
-      if (savedTheme) {
-        state.theme = savedTheme;
-      } else {
-        // System preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        state.theme = prefersDark ? 'dark' : 'light';
-      }
+      if (savedTheme) state.theme = savedTheme;
 
       const savedSound = localStorage.getItem(STORAGE_KEY_SOUND);
-      if (savedSound !== null) {
-        state.soundEnabled = savedSound === 'true';
-      }
-    } catch (e) {
-      console.warn('Failed to load settings', e);
-    }
+      if (savedSound !== null) state.soundEnabled = savedSound === 'true';
+
+      const savedVoice = localStorage.getItem(STORAGE_KEY_VOICE);
+      if (savedVoice !== null) state.voiceEnabled = savedVoice === 'true';
+    } catch (e) {}
+    applyTheme();
+    updateTogglesUI();
   }
 
   function saveSettings() {
     try {
       localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify({
+        workoutName: state.workoutName,
         durationMinutes: state.durationMinutes,
         exercises: state.exercises
       }));
+      localStorage.setItem(STORAGE_KEY_PRESETS, JSON.stringify(state.customPresets));
       localStorage.setItem(STORAGE_KEY_THEME, state.theme);
       localStorage.setItem(STORAGE_KEY_SOUND, state.soundEnabled.toString());
-    } catch (e) {
-      console.warn('Failed to save settings', e);
-    }
+      localStorage.setItem(STORAGE_KEY_VOICE, state.voiceEnabled.toString());
+    } catch (e) {}
+  }
+
+  function applyTheme() {
+    document.documentElement.setAttribute('data-theme', state.theme);
+  }
+
+  function updateTogglesUI() {
+    btnSoundToggle.textContent = state.soundEnabled ? '🔊' : '🔇';
+    btnSoundToggle.classList.toggle('active-mode', state.soundEnabled);
+    btnVoiceToggle.textContent = state.voiceEnabled ? '🗣️' : '🤫';
+    btnVoiceToggle.classList.toggle('active-mode', state.voiceEnabled);
   }
 
   function getHistory() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY_HISTORY);
       return raw ? JSON.parse(raw) : [];
-    } catch (e) {
-      return [];
-    }
+    } catch (e) { return []; }
   }
 
   function saveWorkoutToHistory(record) {
     const history = getHistory();
     history.unshift(record);
-    try {
-      localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-    } catch (e) {
-      console.warn('Failed to save history', e);
-    }
+    try { localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history)); } catch (e) {}
     updateOverviewStats();
   }
 
-  // ==========================================
-  // FORMATTERS & CALCULATIONS
-  // ==========================================
+  // FORMATTERS
   function formatTime(totalSeconds) {
     const s = Math.max(0, Math.floor(totalSeconds));
     const mins = Math.floor(s / 60);
@@ -1702,12 +1785,7 @@
   function formatDateRussian(isoString) {
     const date = new Date(isoString);
     const months = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-    const d = date.getDate();
-    const m = months[date.getMonth()];
-    const y = date.getFullYear();
-    const h = date.getHours().toString().padStart(2, '0');
-    const min = date.getMinutes().toString().padStart(2, '0');
-    return `${d} ${m} ${y}, ${h}:${min}`;
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}, ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
   }
 
   function getPluralRounds(n) {
@@ -1719,15 +1797,14 @@
     return 'КРУГОВ';
   }
 
-  // ==========================================
   // DOM ELEMENTS
-  // ==========================================
   const screenSetup = document.getElementById('screen-setup');
   const screenWorkout = document.getElementById('screen-workout');
   const screenFinish = document.getElementById('screen-finish');
 
-  const headerTitle = document.getElementById('header-workout-name');
+  const headerWorkoutName = document.getElementById('header-workout-name');
   const setupTitle = document.getElementById('setup-title');
+  const btnVoiceToggle = document.getElementById('btn-voice-toggle');
   const btnSoundToggle = document.getElementById('btn-sound-toggle');
   const btnThemeToggle = document.getElementById('btn-theme-toggle');
   const btnOpenHistory = document.getElementById('btn-open-history');
@@ -1736,18 +1813,24 @@
   const statRecordRounds = document.getElementById('stat-record-rounds');
   const statTotalWorkouts = document.getElementById('stat-total-workouts');
 
+  const presetsContainer = document.getElementById('presets-container');
+  const btnSaveAsPreset = document.getElementById('btn-save-as-preset');
+
   const durationDisplay = document.getElementById('duration-display');
   const inputCustomMinutes = document.getElementById('input-custom-minutes');
   const durationPills = document.querySelectorAll('.duration-selector .btn-pill');
   const exerciseListContainer = document.getElementById('exercise-list-container');
   const totalRoundRepsCount = document.getElementById('total-round-reps-count');
   const btnAddExercise = document.getElementById('btn-add-exercise');
+  const btnResetExercises = document.getElementById('btn-reset-exercises');
   const btnStartWorkout = document.getElementById('btn-start-workout');
 
-  // Workout Screen Elements
+  // Workout Screen
   const workoutTimerDisplay = document.getElementById('workout-timer-display');
   const workoutProgressFill = document.getElementById('workout-progress-fill');
   const workoutTotalPreset = document.getElementById('workout-total-preset');
+  const paceCurSplit = document.getElementById('pace-cur-split');
+  const paceDeltaBadge = document.getElementById('pace-delta-badge');
   const liveCurrentRoundNum = document.getElementById('live-current-round-num');
   const liveTaskPreview = document.getElementById('live-task-preview');
   const btnRoundDone = document.getElementById('btn-round-done');
@@ -1764,7 +1847,7 @@
   const countdownOverlay = document.getElementById('countdown-overlay');
   const countdownDigit = document.getElementById('countdown-digit');
 
-  // Finish Screen Elements
+  // Finish Screen
   const finishRoundsCount = document.getElementById('finish-rounds-count');
   const finishRoundsText = document.getElementById('finish-rounds-text');
   const finishRecordBadgeContainer = document.getElementById('finish-record-badge-container');
@@ -1774,325 +1857,407 @@
   const finishAvgSplit = document.getElementById('finish-avg-split');
   const finishBestSplit = document.getElementById('finish-best-split');
   const finishLastSplit = document.getElementById('finish-last-split');
+  const finishChartContainer = document.getElementById('finish-chart-container');
   const finishSplitsCount = document.getElementById('finish-splits-count');
   const finishSplitsList = document.getElementById('finish-splits-list');
   const btnFinishToHome = document.getElementById('btn-finish-to-home');
   const btnFinishViewHistory = document.getElementById('btn-finish-view-history');
   const btnFinishShare = document.getElementById('btn-finish-share');
 
-  // Modals & Toast
+  // Modals
   const modalHistory = document.getElementById('modal-history');
-  const historyItemsContainer = document.getElementById('history-items-container');
   const btnCloseHistory = document.getElementById('btn-close-history');
   const btnCloseHistoryFooter = document.getElementById('btn-close-history-footer');
+  const historyItemsContainer = document.getElementById('history-items-container');
   const btnClearHistory = document.getElementById('btn-clear-history');
 
-  const modalConfirmFinish = document.getElementById('modal-confirm-finish');
-  const btnConfirmCancel = document.getElementById('btn-confirm-cancel');
-  const btnConfirmOk = document.getElementById('btn-confirm-ok');
+  const modalSavePreset = document.getElementById('modal-save-preset');
+  const inputPresetName = document.getElementById('input-preset-name');
+  const btnCloseSavePreset = document.getElementById('btn-close-save-preset');
+  const btnCancelSavePreset = document.getElementById('btn-cancel-save-preset');
+  const btnConfirmSavePreset = document.getElementById('btn-confirm-save-preset');
+
+  const modalThemePicker = document.getElementById('modal-theme-picker');
+  const btnCloseTheme = document.getElementById('btn-close-theme');
 
   const modalConfirmClearHistory = document.getElementById('modal-confirm-clear-history');
   const btnCancelClearHistory = document.getElementById('btn-cancel-clear-history');
   const btnConfirmClearHistory = document.getElementById('btn-confirm-clear-history');
 
+  const modalConfirmFinish = document.getElementById('modal-confirm-finish');
+  const finishModalTitle = document.getElementById('finish-modal-title');
+  const finishModalDesc = document.getElementById('finish-modal-desc');
+  const btnCancelFinishWorkout = document.getElementById('btn-cancel-finish-workout');
+  const btnConfirmFinishWorkout = document.getElementById('btn-confirm-finish-workout');
+
   const toastMessage = document.getElementById('toast-message');
-
-  // ==========================================
-  // THEME & SOUND CONTROLS
-  // ==========================================
-  function applyTheme(theme) {
-    state.theme = theme;
-    document.documentElement.setAttribute('data-theme', theme);
-    btnThemeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
-    saveSettings();
-  }
-
-  function toggleTheme() {
-    applyTheme(state.theme === 'dark' ? 'light' : 'dark');
-  }
-
-  function updateSoundUI() {
-    btnSoundToggle.textContent = state.soundEnabled ? '🔊' : '🔇';
-  }
-
-  function toggleSound() {
-    state.soundEnabled = !state.soundEnabled;
-    updateSoundUI();
-    saveSettings();
-    showToast(state.soundEnabled ? 'Звук включен' : 'Звук выключен');
-  }
 
   function showToast(msg) {
     toastMessage.textContent = msg;
     toastMessage.classList.add('show');
-    setTimeout(() => {
-      toastMessage.classList.remove('show');
-    }, 2000);
+    setTimeout(() => toastMessage.classList.remove('show'), 2200);
   }
 
-  // ==========================================
-  // SETUP SCREEN LOGIC
-  // ==========================================
-  function renderExercisesSetup() {
-    exerciseListContainer.innerHTML = '';
-    let totalReps = 0;
-
-    state.exercises.forEach((ex, idx) => {
-      totalReps += (parseInt(ex.reps, 10) || 0);
-
-      const item = document.createElement('div');
-      item.className = 'exercise-item';
-      item.innerHTML = `
-        <input type="text" class="exercise-name-input" value="${ex.name}" data-idx="${idx}" placeholder="Название упражнения" />
-        <div class="stepper">
-          <button type="button" class="btn-step" data-action="dec" data-idx="${idx}">−</button>
-          <input type="number" class="reps-input" value="${ex.reps}" min="1" max="999" data-idx="${idx}" />
-          <button type="button" class="btn-step" data-action="inc" data-idx="${idx}">+</button>
-        </div>
-        ${state.exercises.length > 1 ? `<button type="button" class="btn-del-exercise" data-idx="${idx}" title="Удалить">🗑️</button>` : ''}
-      `;
-      exerciseListContainer.appendChild(item);
-    });
-
-    totalRoundRepsCount.textContent = `${totalReps} повт/круг`;
-    updateTitles();
+  // PRESETS LOGIC
+  function renderPresets() {
+    const allPresets = [...standardPresets, ...state.customPresets];
+    presetsContainer.innerHTML = allPresets.map(p => `
+      <button type="button" class="preset-chip ${p.name === state.workoutName ? 'active' : ''}" data-id="${p.id}">
+        ${p.name} (${p.durationMinutes}м)
+      </button>
+    `).join('');
   }
 
-  function updateTitles() {
-    const title = `${state.durationMinutes} MIN AMRAP`;
-    headerTitle.textContent = title;
-    setupTitle.textContent = title;
+  presetsContainer.addEventListener('click', (e) => {
+    const chip = e.target.closest('.preset-chip');
+    if (!chip) return;
+    const id = chip.dataset.id;
+    const allPresets = [...standardPresets, ...state.customPresets];
+    const target = allPresets.find(p => p.id === id);
+    if (!target) return;
+
+    state.workoutName = target.name;
+    state.durationMinutes = target.durationMinutes;
+    state.exercises = JSON.parse(JSON.stringify(target.exercises));
+    updateSetupUI();
+    saveSettings();
+    showToast(`Загружен WOD: ${target.name}`);
+  });
+
+  btnSaveAsPreset.addEventListener('click', () => {
+    inputPresetName.value = `${state.durationMinutes} MIN ${state.workoutName || 'AMRAP'}`;
+    modalSavePreset.classList.add('active');
+  });
+  btnCloseSavePreset.addEventListener('click', () => modalSavePreset.classList.remove('active'));
+  btnCancelSavePreset.addEventListener('click', () => modalSavePreset.classList.remove('active'));
+
+  btnConfirmSavePreset.addEventListener('click', () => {
+    const name = inputPresetName.value.trim();
+    if (!name) return;
+    const newPreset = {
+      id: 'custom_' + Date.now(),
+      name: name,
+      durationMinutes: state.durationMinutes,
+      exercises: JSON.parse(JSON.stringify(state.exercises))
+    };
+    state.customPresets.push(newPreset);
+    state.workoutName = name;
+    saveSettings();
+    renderPresets();
+    modalSavePreset.classList.remove('active');
+    showToast(`Шаблон "${name}" сохранён!`);
+  });
+
+  // SETUP UI
+  function updateSetupUI() {
+    setupTitle.textContent = state.workoutName || `${state.durationMinutes} MIN AMRAP`;
+    headerWorkoutName.textContent = state.workoutName || `${state.durationMinutes} MIN AMRAP`;
     durationDisplay.textContent = formatTime(state.durationMinutes * 60);
     inputCustomMinutes.value = state.durationMinutes;
 
     durationPills.forEach(pill => {
-      const min = parseInt(pill.dataset.minutes, 10);
-      pill.classList.toggle('active', min === state.durationMinutes);
-    });
-  }
-
-  function updateOverviewStats() {
-    const history = getHistory();
-    statTotalWorkouts.textContent = history.length;
-
-    // All-time record for rounds
-    let record = 0;
-    let todayRounds = 0;
-    const todayDateString = new Date().toDateString();
-
-    history.forEach(h => {
-      if (h.completedRounds > record) {
-        record = h.completedRounds;
-      }
-      if (new Date(h.date).toDateString() === todayDateString) {
-        todayRounds += h.completedRounds;
-      }
+      pill.classList.toggle('active', parseInt(pill.dataset.minutes) === state.durationMinutes);
     });
 
-    statRecordRounds.textContent = record;
-    statTodayRounds.textContent = todayRounds;
+    renderExerciseList();
+    renderPresets();
+    updateOverviewStats();
   }
 
-  // Setup Event Listeners
-  exerciseListContainer.addEventListener('input', (e) => {
-    const idx = parseInt(e.target.dataset.idx, 10);
+  function renderExerciseList() {
+    let totalReps = 0;
+    exerciseListContainer.innerHTML = state.exercises.map((ex, idx) => {
+      totalReps += ex.reps;
+      return `
+        <div class="exercise-item" data-index="${idx}">
+          <input type="text" class="exercise-name-input" value="${ex.name}" placeholder="Название упражнения" data-index="${idx}" />
+          <div class="stepper">
+            <button type="button" class="btn-step btn-minus" data-index="${idx}">−</button>
+            <input type="number" class="reps-input" value="${ex.reps}" min="1" max="999" data-index="${idx}" />
+            <button type="button" class="btn-step btn-plus" data-index="${idx}">+</button>
+          </div>
+          <button type="button" class="btn-del-exercise" data-index="${idx}" title="Удалить">✕</button>
+        </div>
+      `;
+    }).join('');
+
+    totalRoundRepsCount.textContent = `${totalReps} повт/круг`;
+  }
+
+  // Duration pill clicks
+  durationPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      state.durationMinutes = parseInt(pill.dataset.minutes);
+      updateSetupUI();
+      saveSettings();
+    });
+  });
+
+  inputCustomMinutes.addEventListener('change', (e) => {
+    let val = parseInt(e.target.value) || 20;
+    val = Math.max(1, Math.min(180, val));
+    state.durationMinutes = val;
+    updateSetupUI();
+    saveSettings();
+  });
+
+  // Exercise list interactions
+  exerciseListContainer.addEventListener('click', (e) => {
+    const target = e.target;
+    const idx = parseInt(target.dataset.index);
     if (isNaN(idx)) return;
 
-    if (e.target.classList.contains('exercise-name-input')) {
-      state.exercises[idx].name = e.target.value.trim() || 'Упражнение';
+    if (target.classList.contains('btn-minus')) {
+      if (state.exercises[idx].reps > 1) {
+        state.exercises[idx].reps -= 1;
+        renderExerciseList();
+        saveSettings();
+      }
+    } else if (target.classList.contains('btn-plus')) {
+      state.exercises[idx].reps += 1;
+      renderExerciseList();
       saveSettings();
-    } else if (e.target.classList.contains('reps-input')) {
-      const val = parseInt(e.target.value, 10) || 1;
-      state.exercises[idx].reps = Math.max(1, val);
-      saveSettings();
-      renderExercisesSetup();
+    } else if (target.classList.contains('btn-del-exercise')) {
+      if (state.exercises.length > 1) {
+        state.exercises.splice(idx, 1);
+        renderExerciseList();
+        saveSettings();
+      } else {
+        showToast('Должно остаться хотя бы одно упражнение');
+      }
     }
   });
 
-  exerciseListContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('button');
-    if (!btn) return;
-    const idx = parseInt(btn.dataset.idx, 10);
+  exerciseListContainer.addEventListener('input', (e) => {
+    const target = e.target;
+    const idx = parseInt(target.dataset.index);
     if (isNaN(idx)) return;
 
-    if (btn.classList.contains('btn-step')) {
-      const action = btn.dataset.action;
-      if (action === 'inc') {
-        state.exercises[idx].reps = (parseInt(state.exercises[idx].reps, 10) || 0) + 1;
-      } else if (action === 'dec') {
-        state.exercises[idx].reps = Math.max(1, (parseInt(state.exercises[idx].reps, 10) || 0) - 1);
-      }
+    if (target.classList.contains('exercise-name-input')) {
+      state.exercises[idx].name = target.value;
       saveSettings();
-      renderExercisesSetup();
-    } else if (btn.classList.contains('btn-del-exercise')) {
-      if (state.exercises.length > 1) {
-        state.exercises.splice(idx, 1);
-        saveSettings();
-        renderExercisesSetup();
-      }
+    } else if (target.classList.contains('reps-input')) {
+      const val = parseInt(target.value) || 1;
+      state.exercises[idx].reps = Math.max(1, val);
+      totalRoundRepsCount.textContent = `${state.exercises.reduce((a, b) => a + b.reps, 0)} повт/круг`;
+      saveSettings();
     }
   });
 
   btnAddExercise.addEventListener('click', () => {
+    const exNames = ['берпи', 'выпады', 'пресс', 'джампинг-джек', 'планка (сек)'];
+    const randomName = exNames[Math.floor(Math.random() * exNames.length)];
     state.exercises.push({
       id: 'ex_' + Date.now(),
-      name: 'Упражнение',
+      name: randomName,
       reps: 10
     });
+    renderExerciseList();
     saveSettings();
-    renderExercisesSetup();
   });
 
-  durationPills.forEach(pill => {
-    pill.addEventListener('click', () => {
-      const min = parseInt(pill.dataset.minutes, 10);
-      state.durationMinutes = min;
-      updateTitles();
-      saveSettings();
+  btnResetExercises.addEventListener('click', () => {
+    state.exercises = JSON.parse(JSON.stringify(standardPresets[0].exercises));
+    state.workoutName = '20 MIN AMRAP';
+    state.durationMinutes = 20;
+    updateSetupUI();
+    saveSettings();
+    showToast('Сброшено к классическому 20 MIN AMRAP');
+  });
+
+  // STATS UPDATE
+  function updateOverviewStats() {
+    const history = getHistory();
+    statTotalWorkouts.textContent = history.length;
+
+    let maxRounds = 0;
+    let todayRounds = 0;
+    const todayStr = new Date().toDateString();
+
+    history.forEach(item => {
+      if (item.completedRounds > maxRounds) maxRounds = item.completedRounds;
+      if (item.date && new Date(item.date).toDateString() === todayStr) {
+        todayRounds += item.completedRounds;
+      }
     });
-  });
 
-  inputCustomMinutes.addEventListener('change', () => {
-    let min = parseInt(inputCustomMinutes.value, 10) || 20;
-    min = Math.max(1, Math.min(180, min));
-    state.durationMinutes = min;
-    updateTitles();
-    saveSettings();
-  });
-
-  // ==========================================
-  // NAVIGATION & SCREENS
-  // ==========================================
-  function showScreen(screenId) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(screenId).classList.add('active');
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    statRecordRounds.textContent = maxRounds;
+    statTodayRounds.textContent = todayRounds;
   }
 
-  // ==========================================
-  // WORKOUT EXECUTION LOGIC
-  // ==========================================
+  // WORKOUT ENGINE
   btnStartWorkout.addEventListener('click', () => {
     initAudio();
-    startCountdownAndWorkout();
+    startCountdown();
   });
 
-  function startCountdownAndWorkout() {
-    showScreen('screen-workout');
+  function startCountdown() {
+    screenSetup.classList.remove('active');
+    screenWorkout.classList.add('active');
     countdownOverlay.classList.add('active');
-    
+
     let count = 3;
     countdownDigit.textContent = count;
-    playSound('countdown_tick');
-    vibrate(40);
+    playSound('start_short');
+    speak('Три');
 
-    const countInterval = setInterval(() => {
-      count--;
+    const interval = setInterval(() => {
+      count -= 1;
       if (count > 0) {
         countdownDigit.textContent = count;
-        playSound('countdown_tick');
-        vibrate(40);
+        playSound('start_short');
+        speak(count === 2 ? 'Два' : 'Один');
       } else {
-        clearInterval(countInterval);
+        clearInterval(interval);
         countdownOverlay.classList.remove('active');
         playSound('start_go');
-        vibrate([100, 50, 150]);
+        speak('Старт!');
         beginActiveWorkout();
       }
     }, 1000);
   }
 
   function beginActiveWorkout() {
-    workout.active = true;
-    workout.paused = false;
-    workout.durationMs = state.durationMinutes * 60 * 1000;
-    workout.startTime = Date.now();
-    workout.pauseStartTime = 0;
-    workout.totalPausedMs = 0;
-    workout.completedRounds = 0;
-    workout.roundSplits = [];
-    workout.lastRoundTimestamp = workout.startTime;
+    requestWakeLock();
+    const durationMs = state.durationMinutes * 60 * 1000;
+    const now = Date.now();
 
-    workout.alerted1Min = false;
-    workout.alerted10Sec = false;
-    workout.alerted3Sec = false;
-    workout.alerted2Sec = false;
-    workout.alerted1Sec = false;
+    workout = {
+      active: true,
+      paused: false,
+      durationMs: durationMs,
+      startTime: now,
+      pauseStartTime: 0,
+      totalPausedMs: 0,
+      completedRounds: 0,
+      roundSplits: [],
+      lastRoundTimestamp: now,
+      isOvertime: false,
+      alerted1Min: false,
+      alerted30Sec: false,
+      alerted10Sec: false,
+      alerted3Sec: false,
+      alerted2Sec: false,
+      alerted1Sec: false,
+      alertedTimeUp: false
+    };
 
     workoutTotalPreset.textContent = `${state.durationMinutes}:00 AMRAP`;
-    pauseOverlay.classList.remove('active');
-
-    requestWakeLock();
-    renderLiveTaskPreview();
-    updateLiveMetrics();
-    runTimerTick();
+    liveCurrentRoundNum.textContent = '1';
+    workoutTimerDisplay.classList.remove('warning', 'overtime');
+    workoutProgressFill.style.width = '100%';
+    document.getElementById('workout-status-text').textContent = 'ТРЕНИРОВКА';
+    renderLiveExerciseTaskPreview();
+    updateLiveStats();
 
     if (workout.timerInterval) clearInterval(workout.timerInterval);
-    workout.timerInterval = setInterval(runTimerTick, 100);
+    workout.timerInterval = setInterval(tickWorkoutTimer, 100);
   }
 
-  function runTimerTick() {
+  function renderLiveExerciseTaskPreview() {
+    liveTaskPreview.innerHTML = state.exercises.map(ex => `
+      <span class="round-task-tag">${ex.reps} × ${ex.name}</span>
+    `).join(' ');
+  }
+
+  function tickWorkoutTimer() {
     if (!workout.active || workout.paused) return;
 
     const now = Date.now();
-    const elapsedMs = now - workout.startTime - workout.totalPausedMs;
-    const remainingMs = Math.max(0, workout.durationMs - elapsedMs);
-    const remainingSecs = Math.ceil(remainingMs / 1000);
+    const effectiveElapsedMs = (now - workout.startTime) - workout.totalPausedMs;
+    const remainingMs = workout.durationMs - effectiveElapsedMs;
 
-    // Update Timer Display
-    workoutTimerDisplay.textContent = formatTime(remainingSecs);
+    if (remainingMs > 0) {
+      const remainingSecs = Math.ceil(remainingMs / 1000);
+      workoutTimerDisplay.textContent = formatTime(remainingSecs);
 
-    // Progress Bar (100% at start, down to 0% at end)
-    const progressFraction = Math.max(0, Math.min(1, remainingMs / workout.durationMs));
-    workoutProgressFill.style.width = `${(progressFraction * 100).toFixed(1)}%`;
+      const progressRatio = Math.max(0, Math.min(1, remainingMs / workout.durationMs));
+      workoutProgressFill.style.width = `${(progressRatio * 100).toFixed(1)}%`;
 
-    // Audio cues at key milestones
-    if (remainingSecs <= 60 && !workout.alerted1Min && workout.durationMs > 90000) {
-      workout.alerted1Min = true;
-      playSound('warning_minute');
-      showToast('Осталась 1 минута!');
+      if (remainingSecs <= 30) workoutTimerDisplay.classList.add('warning');
+      else workoutTimerDisplay.classList.remove('warning');
+      workoutTimerDisplay.classList.remove('overtime');
+
+      // Audio & Voice Announcements
+      if (remainingSecs === 60 && !workout.alerted1Min) {
+        workout.alerted1Min = true;
+        speak('Осталась одна минута');
+        vibrate(100);
+      } else if (remainingSecs === 30 && !workout.alerted30Sec) {
+        workout.alerted30Sec = true;
+        speak('Тридцать секунд');
+        vibrate(100);
+      } else if (remainingSecs === 10 && !workout.alerted10Sec) {
+        workout.alerted10Sec = true;
+        speak('Десять секунд');
+        vibrate([100, 50, 100]);
+      } else if (remainingSecs === 3 && !workout.alerted3Sec) {
+        workout.alerted3Sec = true;
+        playSound('start_short');
+        speak('Три');
+      } else if (remainingSecs === 2 && !workout.alerted2Sec) {
+        workout.alerted2Sec = true;
+        playSound('start_short');
+        speak('Два');
+      } else if (remainingSecs === 1 && !workout.alerted1Sec) {
+        workout.alerted1Sec = true;
+        playSound('start_short');
+        speak('Один');
+      }
+    } else {
+      // Overtime mode: time is up, allowing athlete to complete current round
+      workout.isOvertime = true;
+      const overtimeSecs = Math.floor(Math.abs(remainingMs) / 1000);
+      workoutTimerDisplay.textContent = `+${formatTime(overtimeSecs)}`;
+      workoutTimerDisplay.classList.remove('warning');
+      workoutTimerDisplay.classList.add('overtime');
+      workoutProgressFill.style.width = '0%';
+      document.getElementById('workout-status-text').textContent = 'ДОДЕЛАЙ КРУГ (+ДОП. ВРЕМЯ)';
+
+      if (!workout.alertedTimeUp) {
+        workout.alertedTimeUp = true;
+        playSound('start_short');
+        speak('Время вышло! Доделайте круг или завершите тренировку');
+        vibrate([200, 100, 200]);
+      }
     }
 
-    if (remainingSecs <= 10 && !workout.alerted10Sec && remainingSecs > 0) {
-      workout.alerted10Sec = true;
-      playSound('warning_10sec');
-      workoutTimerDisplay.classList.add('warning');
+    // Live Round Pace Calculation
+    const curRoundElapsedMs = (now - workout.lastRoundTimestamp) - workout.totalPausedMs;
+    paceCurSplit.textContent = `Круг ${workout.completedRounds + 1}: ${formatDurationMs(curRoundElapsedMs)}`;
+    calculateLivePace(curRoundElapsedMs);
+  }
+
+  function calculateLivePace(curRoundElapsedMs) {
+    if (workout.roundSplits.length === 0) {
+      paceDeltaBadge.className = 'pace-badge neutral';
+      paceDeltaBadge.textContent = '⚡ Первый круг';
+      return;
     }
 
-    if (remainingSecs === 3 && !workout.alerted3Sec) {
-      workout.alerted3Sec = true;
-      playSound('countdown_tick');
-    }
-    if (remainingSecs === 2 && !workout.alerted2Sec) {
-      workout.alerted2Sec = true;
-      playSound('countdown_tick');
-    }
-    if (remainingSecs === 1 && !workout.alerted1Sec) {
-      workout.alerted1Sec = true;
-      playSound('countdown_tick');
-    }
+    const avgSplitMs = workout.roundSplits.reduce((acc, s) => acc + s.durationMs, 0) / workout.roundSplits.length;
+    const deltaSecs = Math.round((curRoundElapsedMs - avgSplitMs) / 1000);
 
-    // Finished!
-    if (remainingMs <= 0) {
-      finishWorkout(true);
+    if (deltaSecs <= -4) {
+      paceDeltaBadge.className = 'pace-badge ahead';
+      paceDeltaBadge.textContent = `⚡ Опережение (+${Math.abs(deltaSecs)}с)`;
+    } else if (deltaSecs >= 6) {
+      paceDeltaBadge.className = 'pace-badge behind';
+      paceDeltaBadge.textContent = `🐢 Замедление (-${deltaSecs}с)`;
+    } else {
+      paceDeltaBadge.className = 'pace-badge neutral';
+      paceDeltaBadge.textContent = '🎯 В среднем темпе';
     }
   }
 
-  // Render Exercise Task preview in workout
-  function renderLiveTaskPreview() {
-    liveTaskPreview.innerHTML = state.exercises.map(ex => 
-      `<span class="round-task-tag">${ex.reps} × ${ex.name}</span>`
-    ).join('');
-  }
-
-  // Handle "КРУГ ЗАВЕРШЁН" Button Click
-  btnRoundDone.addEventListener('click', () => {
+  // ROUND FINISHED CLICK
+  function handleRoundFinish() {
     if (!workout.active || workout.paused) return;
 
     const now = Date.now();
-    workout.completedRounds++;
-    
-    const splitDurationMs = now - workout.lastRoundTimestamp;
+    const splitDurationMs = (now - workout.lastRoundTimestamp) - workout.totalPausedMs;
+
+    workout.completedRounds += 1;
     workout.roundSplits.push({
       round: workout.completedRounds,
       durationMs: splitDurationMs,
@@ -2100,69 +2265,66 @@
     });
     workout.lastRoundTimestamp = now;
 
-    // Haptics & Audio
-    vibrate(70);
     playSound('round_done');
+    vibrate(60);
+    speak(`Круг ${workout.completedRounds}`);
 
-    // Visual button bounce
-    btnRoundDone.style.transform = 'scale(0.94)';
-    setTimeout(() => {
-      btnRoundDone.style.transform = '';
-    }, 80);
+    // If time was already up, completing this round ends the workout!
+    const effectiveElapsedMs = (now - workout.startTime) - workout.totalPausedMs;
+    if (effectiveElapsedMs >= workout.durationMs) {
+      finishWorkout(true);
+      return;
+    }
 
-    updateLiveMetrics();
-  });
-
-  // Undo Last Round (in case of mis-tap)
-  btnUndoRound.addEventListener('click', () => {
-    if (!workout.active || workout.completedRounds <= 0) return;
-    
-    workout.completedRounds--;
-    workout.roundSplits.pop();
-    
-    const lastSplit = workout.roundSplits[workout.roundSplits.length - 1];
-    workout.lastRoundTimestamp = lastSplit ? lastSplit.timestamp : workout.startTime;
-
-    showToast('Круг отменен');
-    vibrate(30);
-    updateLiveMetrics();
-  });
-
-  function updateLiveMetrics() {
-    // Current Round number (round in progress is completedRounds + 1)
     liveCurrentRoundNum.textContent = workout.completedRounds + 1;
+    updateLiveStats();
+  }
 
-    // Reps summary
-    let repsHtml = `
+  btnRoundDone.addEventListener('click', handleRoundFinish);
+
+  // Keyboard shortcut (Space / Enter)
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && workout.active && !workout.paused) {
+      e.preventDefault();
+      handleRoundFinish();
+    }
+  });
+
+  // Undo round
+  btnUndoRound.addEventListener('click', () => {
+    if (workout.completedRounds > 0) {
+      workout.completedRounds -= 1;
+      workout.roundSplits.pop();
+      workout.lastRoundTimestamp = workout.roundSplits.length > 0 
+        ? workout.roundSplits[workout.roundSplits.length - 1].timestamp 
+        : workout.startTime;
+      liveCurrentRoundNum.textContent = workout.completedRounds + 1;
+      updateLiveStats();
+      showToast('Круг отменён');
+    }
+  });
+
+  function updateLiveStats() {
+    liveRepsContainer.innerHTML = `
       <div class="rep-stat-item">
-        <div class="rep-stat-val" style="color: var(--accent-primary);">${workout.completedRounds}</div>
+        <div class="rep-stat-val" style="color:var(--accent-primary);">${workout.completedRounds}</div>
         <div class="rep-stat-lbl">Кругов</div>
       </div>
-    `;
+    ` + state.exercises.map(ex => `
+      <div class="rep-stat-item">
+        <div class="rep-stat-val">${ex.reps * workout.completedRounds}</div>
+        <div class="rep-stat-lbl">${ex.name}</div>
+      </div>
+    `).join('');
 
-    state.exercises.forEach(ex => {
-      const totalExReps = workout.completedRounds * ex.reps;
-      repsHtml += `
-        <div class="rep-stat-item">
-          <div class="rep-stat-val">${totalExReps}</div>
-          <div class="rep-stat-lbl">${ex.name}</div>
-        </div>
-      `;
-    });
-
-    liveRepsContainer.innerHTML = repsHtml;
-
-    // Splits calculation
     if (workout.roundSplits.length > 0) {
-      const lastSplitMs = workout.roundSplits[workout.roundSplits.length - 1].durationMs;
-      liveLastRoundTime.textContent = formatDurationMs(lastSplitMs);
+      const lastSplit = workout.roundSplits[workout.roundSplits.length - 1].durationMs;
+      const avgSplit = workout.roundSplits.reduce((a, b) => a + b.durationMs, 0) / workout.roundSplits.length;
+      const bestSplit = Math.min(...workout.roundSplits.map(s => s.durationMs));
 
-      const totalSplitMs = workout.roundSplits.reduce((acc, cur) => acc + cur.durationMs, 0);
-      const avgSplitMs = totalSplitMs / workout.roundSplits.length;
-      liveAvgRoundTime.textContent = formatDurationMs(avgSplitMs);
-
-      const bestSplitMs = Math.min(...workout.roundSplits.map(s => s.durationMs));
-      liveBestRoundTime.textContent = formatDurationMs(bestSplitMs);
+      liveLastRoundTime.textContent = formatDurationMs(lastSplit);
+      liveAvgRoundTime.textContent = formatDurationMs(avgSplit);
+      liveBestRoundTime.textContent = formatDurationMs(bestSplit);
     } else {
       liveLastRoundTime.textContent = '—';
       liveAvgRoundTime.textContent = '—';
@@ -2170,118 +2332,78 @@
     }
   }
 
-  // ==========================================
-  // PAUSE & RESUME CONTROLS
-  // ==========================================
-  btnPauseToggle.addEventListener('click', togglePause);
-  btnResumeWorkout.addEventListener('click', togglePause);
+  // PAUSE & RESUME
+  btnPauseToggle.addEventListener('click', pauseWorkout);
+  btnResumeWorkout.addEventListener('click', resumeWorkout);
 
-  function togglePause() {
-    if (!workout.active) return;
-
-    if (!workout.paused) {
-      workout.paused = true;
-      workout.pauseStartTime = Date.now();
-      pauseOverlay.classList.add('active');
-    } else {
-      const pausedDuration = Date.now() - workout.pauseStartTime;
-      workout.totalPausedMs += pausedDuration;
-      workout.lastRoundTimestamp += pausedDuration; // Shift last round timestamp
-      workout.paused = false;
-      pauseOverlay.classList.remove('active');
-    }
+  function pauseWorkout() {
+    if (!workout.active || workout.paused) return;
+    workout.paused = true;
+    workout.pauseStartTime = Date.now();
+    pauseOverlay.classList.add('active');
+    speak('Пауза');
   }
 
-  // ==========================================
-  // FINISH WORKOUT LOGIC
-  // ==========================================
-  btnFinishEarly.addEventListener('click', () => {
-    modalConfirmFinish.classList.add('active');
-  });
+  function resumeWorkout() {
+    if (!workout.active || !workout.paused) return;
+    workout.totalPausedMs += (Date.now() - workout.pauseStartTime);
+    workout.paused = false;
+    pauseOverlay.classList.remove('active');
+    speak('Продолжаем');
+  }
 
   btnPauseExit.addEventListener('click', () => {
     pauseOverlay.classList.remove('active');
     finishWorkout(false);
   });
 
-  btnConfirmCancel.addEventListener('click', () => {
+  btnFinishEarly.addEventListener('click', () => {
+    if (workout.isOvertime) {
+      finishModalTitle.textContent = 'Завершить тренировку?';
+      finishModalDesc.textContent = 'Зафиксировать текущий результат с учётом дополнительного времени?';
+    } else {
+      finishModalTitle.textContent = 'Завершить досрочно?';
+      finishModalDesc.textContent = 'Зафиксировать текущее время и количество выполненных кругов?';
+    }
+    modalConfirmFinish.classList.add('active');
+  });
+
+  btnCancelFinishWorkout.addEventListener('click', () => {
     modalConfirmFinish.classList.remove('active');
   });
 
-  btnConfirmOk.addEventListener('click', () => {
+  btnConfirmFinishWorkout.addEventListener('click', () => {
     modalConfirmFinish.classList.remove('active');
     finishWorkout(false);
   });
 
-  function finishWorkout(naturalFinish = true) {
-    if (!workout.active) return;
-
-    if (workout.timerInterval) {
-      clearInterval(workout.timerInterval);
-      workout.timerInterval = null;
-    }
-
+  // FINISH & RESULTS
+  function finishWorkout(roundCompletedAtFinish = false) {
     workout.active = false;
-    workoutTimerDisplay.classList.remove('warning');
+    if (workout.timerInterval) clearInterval(workout.timerInterval);
     releaseWakeLock();
 
+    modalConfirmFinish.classList.remove('active');
+    pauseOverlay.classList.remove('active');
+
     playSound('finish');
-    vibrate([200, 100, 200, 100, 300]);
+    speak('Тренировка завершена!');
 
-    // Calculate totals
-    const actualElapsedMs = naturalFinish ? workout.durationMs : Math.min(workout.durationMs, Date.now() - workout.startTime - workout.totalPausedMs);
-    const completedRounds = workout.completedRounds;
+    const now = Date.now();
+    const actualDurationMs = Math.max(1000, (now - workout.startTime) - workout.totalPausedMs);
 
-    let bestSplitMs = 0;
-    let avgSplitMs = 0;
-    let lastSplitMs = 0;
-
-    if (workout.roundSplits.length > 0) {
-      const splitDurations = workout.roundSplits.map(s => s.durationMs);
-      bestSplitMs = Math.min(...splitDurations);
-      avgSplitMs = splitDurations.reduce((a, b) => a + b, 0) / splitDurations.length;
-      lastSplitMs = splitDurations[splitDurations.length - 1];
-    }
-
-    // Check PR against history
-    const pastHistory = getHistory();
-    let maxPreviousRounds = 0;
-    pastHistory.forEach(h => {
-      if (h.completedRounds > maxPreviousRounds) {
-        maxPreviousRounds = h.completedRounds;
-      }
-    });
-
-    const isNewRecord = completedRounds > 0 && completedRounds > maxPreviousRounds;
-
-    // Save Record object
-    const record = {
-      id: 'wod_' + Date.now(),
-      date: new Date().toISOString(),
-      presetMinutes: state.durationMinutes,
-      totalDurationMs: actualElapsedMs,
-      completedRounds: completedRounds,
-      exercises: state.exercises.map(ex => ({
-        name: ex.name,
-        repsPerRound: ex.reps,
-        totalReps: completedRounds * ex.reps
-      })),
-      splits: workout.roundSplits,
-      bestSplitMs: bestSplitMs,
-      avgSplitMs: avgSplitMs,
-      isNewRecord: isNewRecord
-    };
-
-    saveWorkoutToHistory(record);
-
-    // Display Finish Screen
-    renderFinishScreen(record, isNewRecord);
-    showScreen('screen-finish');
+    renderResultsScreen(actualDurationMs);
+    screenWorkout.classList.remove('active');
+    screenFinish.classList.add('active');
   }
 
-  function renderFinishScreen(record, isNewRecord) {
-    finishRoundsCount.textContent = record.completedRounds;
-    finishRoundsText.textContent = getPluralRounds(record.completedRounds);
+  function renderResultsScreen(actualDurationMs) {
+    const history = getHistory();
+    const previousRecord = history.reduce((max, item) => Math.max(max, item.completedRounds), 0);
+    const isNewRecord = workout.completedRounds > previousRecord && workout.completedRounds > 0;
+
+    finishRoundsCount.textContent = workout.completedRounds;
+    finishRoundsText.textContent = getPluralRounds(workout.completedRounds);
 
     if (isNewRecord) {
       finishRecordBadgeContainer.innerHTML = `<div class="record-badge">🔥 НОВЫЙ РЕКОРД!</div>`;
@@ -2289,82 +2411,176 @@
       finishRecordBadgeContainer.innerHTML = '';
     }
 
-    // Exercises & Reps
-    let totalRepsSum = 0;
-    finishExerciseRepsList.innerHTML = record.exercises.map(ex => {
-      totalRepsSum += ex.totalReps;
+    finishTotalTime.textContent = formatDurationMs(actualDurationMs);
+
+    let avgSplitMs = 0;
+    let bestSplitMs = 0;
+    let lastSplitMs = 0;
+
+    if (workout.roundSplits.length > 0) {
+      avgSplitMs = workout.roundSplits.reduce((a, b) => a + b.durationMs, 0) / workout.roundSplits.length;
+      bestSplitMs = Math.min(...workout.roundSplits.map(s => s.durationMs));
+      lastSplitMs = workout.roundSplits[workout.roundSplits.length - 1].durationMs;
+    }
+
+    finishAvgSplit.textContent = formatDurationMs(avgSplitMs);
+    finishBestSplit.textContent = formatDurationMs(bestSplitMs);
+    finishLastSplit.textContent = formatDurationMs(lastSplitMs);
+
+    updateSummaryRepsAndSave(actualDurationMs, avgSplitMs, bestSplitMs, lastSplitMs);
+
+    // Splits table
+    finishSplitsCount.textContent = `${workout.roundSplits.length} кругов`;
+    finishSplitsList.innerHTML = workout.roundSplits.map(s => `
+      <div class="split-row ${s.durationMs === bestSplitMs ? 'best-split' : ''}">
+        <span>Круг ${s.round} ${s.durationMs === bestSplitMs ? '🏆 Лучший' : ''}</span>
+        <span style="font-family:var(--font-mono); font-weight:800;">${formatDurationMs(s.durationMs)}</span>
+      </div>
+    `).join('') || '<div style="padding:10px; color:var(--text-muted); text-align:center;">Нет завершённых кругов</div>';
+
+    // SVG Pace Chart
+    renderPaceChart(finishChartContainer, workout.roundSplits, avgSplitMs, bestSplitMs);
+  }
+
+  function updateSummaryRepsAndSave(actualDurationMs, avgSplitMs, bestSplitMs, lastSplitMs) {
+    let overallRepsSum = 0;
+    finishExerciseRepsList.innerHTML = state.exercises.map(ex => {
+      const fullReps = ex.reps * workout.completedRounds;
+      overallRepsSum += fullReps;
       return `
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dashed var(--border-color);">
-          <span style="font-weight: 700; color: var(--text-primary);">${ex.name}</span>
-          <span style="font-family: var(--font-mono); font-weight: 800; color: var(--accent-primary);">${ex.totalReps} повт</span>
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; padding:4px 0; border-bottom:1px solid var(--border-color);">
+          <span style="font-weight:700;">${ex.name}</span>
+          <span style="font-family:var(--font-mono); font-weight:800;">
+            ${fullReps} повт.
+          </span>
         </div>
       `;
     }).join('');
 
-    finishTotalRepsSum.textContent = `${totalRepsSum} повт. суммарно`;
-    finishTotalTime.textContent = formatDurationMs(record.totalDurationMs);
-    finishAvgSplit.textContent = formatDurationMs(record.avgSplitMs);
-    finishBestSplit.textContent = formatDurationMs(record.bestSplitMs);
-    finishLastSplit.textContent = record.splits.length > 0 ? formatDurationMs(record.splits[record.splits.length - 1].durationMs) : '—';
+    finishTotalRepsSum.textContent = `${overallRepsSum} повторений`;
 
-    // Splits List
-    finishSplitsCount.textContent = `${record.splits.length} кругов`;
-    if (record.splits.length > 0) {
-      finishSplitsList.innerHTML = record.splits.map(s => {
-        const isBest = s.durationMs === record.bestSplitMs;
-        return `
-          <div class="split-row ${isBest ? 'best-split' : ''}">
-            <span>Круг ${s.round} ${isBest ? '⚡ Лучший' : ''}</span>
-            <span style="font-family: var(--font-mono);">${formatDurationMs(s.durationMs)}</span>
-          </div>
-        `;
-      }).join('');
-    } else {
-      finishSplitsList.innerHTML = `<div style="padding: 12px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">Нет завершённых кругов</div>`;
-    }
+    // Save record to history
+    const record = {
+      id: 'wod_' + Date.now(),
+      date: new Date().toISOString(),
+      workoutName: state.workoutName,
+      presetMinutes: state.durationMinutes,
+      totalDurationMs: actualDurationMs,
+      completedRounds: workout.completedRounds,
+      partialRepsTotal: 0,
+      totalRepsSum: overallRepsSum,
+      avgSplitMs: avgSplitMs || 0,
+      bestSplitMs: bestSplitMs || 0,
+      lastSplitMs: lastSplitMs || 0,
+      splits: workout.roundSplits,
+      exercises: state.exercises.map(e => ({
+        name: e.name,
+        repsPerRound: e.reps,
+        totalReps: e.reps * workout.completedRounds
+      }))
+    };
+
+    saveWorkoutToHistory(record);
   }
 
-  // Finish Screen Buttons
+  // SVG PACE CHART GENERATOR
+  function renderPaceChart(container, splits, avgSplitMs, bestSplitMs) {
+    if (!splits || splits.length === 0) {
+      container.innerHTML = '<div style="display:flex; align-items:center; justify-content:center; height:100%; color:var(--text-muted); font-size:0.8rem;">Нет данных для графика</div>';
+      return;
+    }
+
+    const width = container.clientWidth || 340;
+    const height = 120;
+    const padding = 20;
+
+    const maxDuration = Math.max(...splits.map(s => s.durationMs / 1000), 10);
+    const barWidth = Math.max(10, Math.min(32, (width - padding * 2) / splits.length - 6));
+    const step = (width - padding * 2) / splits.length;
+
+    let barsSvg = '';
+    splits.forEach((s, i) => {
+      const durSec = s.durationMs / 1000;
+      const barHeight = Math.max(8, (durSec / maxDuration) * (height - 30));
+      const x = padding + (i * step) + (step - barWidth) / 2;
+      const y = height - barHeight - 15;
+      const isBest = s.durationMs === bestSplitMs;
+      const color = isBest ? '#10b981' : (s.durationMs > avgSplitMs * 1.15 ? '#ef4444' : '#f59e0b');
+
+      barsSvg += `
+        <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="4" fill="${color}" opacity="0.9" />
+        <text x="${x + barWidth/2}" y="${height - 2}" text-anchor="middle" font-size="9" fill="var(--text-muted)" font-weight="700">R${s.round}</text>
+        <text x="${x + barWidth/2}" y="${y - 4}" text-anchor="middle" font-size="9" fill="${color}" font-weight="800" font-family="var(--font-mono)">${Math.round(durSec)}с</text>
+      `;
+    });
+
+    const avgY = height - 15 - ( (avgSplitMs/1000) / maxDuration ) * (height - 30);
+
+    container.innerHTML = `
+      <svg class="chart-svg" viewBox="0 0 ${width} ${height}">
+        <line x1="${padding}" y1="${avgY}" x2="${width - padding}" y2="${avgY}" stroke="var(--accent-blue)" stroke-width="1.5" stroke-dasharray="4 3" />
+        <text x="${width - padding}" y="${avgY - 4}" text-anchor="end" font-size="8" fill="var(--accent-blue)" font-weight="700">ср: ${formatDurationMs(avgSplitMs)}</text>
+        ${barsSvg}
+      </svg>
+    `;
+  }
+
+  // FINISH SCREEN BUTTONS
   btnFinishToHome.addEventListener('click', () => {
-    updateOverviewStats();
-    showScreen('screen-setup');
+    screenFinish.classList.remove('active');
+    screenSetup.classList.add('active');
+    updateSetupUI();
   });
 
-  btnFinishViewHistory.addEventListener('click', () => {
-    openHistoryModal();
-  });
+  btnFinishViewHistory.addEventListener('click', openHistoryModal);
 
   btnFinishShare.addEventListener('click', () => {
     const history = getHistory();
     const latest = history[0];
     if (!latest) return;
 
-    let text = `🏋️ Мой результат ${latest.presetMinutes} MIN AMRAP:\n`;
-    text += `🔥 Завершено кругов: ${latest.completedRounds}\n`;
+    const plannedTimeStr = `${latest.presetMinutes}:00`;
+    const actualTimeStr = formatDurationMs(latest.totalDurationMs);
+    const scoreStr = latest.partialRepsTotal > 0 
+      ? `${latest.completedRounds} кругов + ${latest.partialRepsTotal} повт.`
+      : `${latest.completedRounds} кругов`;
+
+    let text = `🏋️ Мой результат ${latest.workoutName || `${latest.presetMinutes} MIN AMRAP`}:\n`;
+    text += `⏱ Время: ${actualTimeStr} из ${plannedTimeStr} заданных\n`;
+    text += `🔥 Результат: ${scoreStr} (${latest.totalRepsSum} повт. всего)\n`;
+    text += `📋 Упражнения:\n`;
     latest.exercises.forEach(ex => {
       text += `• ${ex.name}: ${ex.totalReps} повт.\n`;
     });
-    text += `⏱ Лучший круг: ${formatDurationMs(latest.bestSplitMs)}\n`;
-    text += `⏱ Средний круг: ${formatDurationMs(latest.avgSplitMs)}\n`;
+    if (latest.bestSplitMs > 0) {
+      text += `⚡ Лучший круг: ${formatDurationMs(latest.bestSplitMs)}\n`;
+      text += `📊 Средний круг: ${formatDurationMs(latest.avgSplitMs)}\n`;
+    }
 
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        showToast('Результат скопирован в буфер!');
-      }).catch(() => {
-        showToast('Не удалось скопировать');
-      });
+    if (navigator.share) {
+      navigator.share({ title: 'AMRAP Результат', text: text }).catch(() => copyTextFallback(text));
     } else {
-      showToast('Буфер обмена недоступен');
+      copyTextFallback(text);
     }
   });
 
-  // ==========================================
-  // HISTORY MODAL LOGIC
-  // ==========================================
-  btnOpenHistory.addEventListener('click', openHistoryModal);
-  btnCloseHistory.addEventListener('click', closeHistoryModal);
-  btnCloseHistoryFooter.addEventListener('click', closeHistoryModal);
+  function copyTextFallback(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => showToast('Результат скопирован!'));
+    } else {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      showToast('Результат скопирован!');
+    }
+  }
 
+  // HISTORY MODAL
   function openHistoryModal() {
     renderHistoryList();
     modalHistory.classList.add('active');
@@ -2378,70 +2594,50 @@
   function renderHistoryList() {
     const history = getHistory();
     if (history.length === 0) {
-      historyItemsContainer.innerHTML = `
-        <div style="text-align: center; padding: 32px 16px; color: var(--text-muted);">
-          <div style="font-size: 2.5rem; margin-bottom: 8px;">🏋️</div>
-          <div style="font-weight: 700;">Пока нет сохранённых тренировок</div>
-          <div style="font-size: 0.85rem; margin-top: 4px;">Завершите первую тренировку, чтобы увидеть прогресс</div>
-        </div>
-      `;
+      historyItemsContainer.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-muted); font-weight:600;">Пока нет сохранённых тренировок</div>';
       return;
     }
 
     historyItemsContainer.innerHTML = history.map((item, idx) => {
-      const exStr = item.exercises.map(e => `${e.totalReps} ${e.name}`).join(' • ');
-      const itemId = item.id || ('wod_' + (item.date ? new Date(item.date).getTime() : idx));
+      const exStr = item.exercises ? item.exercises.map(e => `${e.totalReps} ${e.name}`).join(' • ') : '';
+      const itemId = item.id || ('wod_' + idx);
+      const scoreStr = item.partialRepsTotal > 0 
+        ? `${item.completedRounds} кр. + ${item.partialRepsTotal}` 
+        : `${item.completedRounds} ${getPluralRounds(item.completedRounds)}`;
+
       return `
-        <div class="history-card-item" data-id="${itemId}">
+        <div class="history-card-item">
           <div class="history-card-header">
-            <span class="history-date">${formatDateRussian(item.date)}</span>
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="history-rounds">${item.completedRounds} ${getPluralRounds(item.completedRounds)}</span>
-              <button type="button" class="btn-del-history-item" data-id="${itemId}" title="Удалить эту тренировку" aria-label="Удалить запись">
-                🗑️
-              </button>
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${formatDateRussian(item.date)}</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:1rem; font-weight:900; font-family:var(--font-mono); color:var(--accent-primary);">${scoreStr}</span>
+              <button type="button" class="btn-del-history-item" data-id="${itemId}" title="Удалить запись">🗑️</button>
             </div>
           </div>
-          <div class="history-details">
-            <div><strong>Время:</strong> ${formatDurationMs(item.totalDurationMs)} (${item.presetMinutes} мин AMRAP)</div>
-            <div><strong>Упражнения:</strong> ${exStr}</div>
-            ${item.bestSplitMs ? `<div><strong>Лучший круг:</strong> ${formatDurationMs(item.bestSplitMs)} • <strong>Средний:</strong> ${formatDurationMs(item.avgSplitMs)}</div>` : ''}
+          <div style="font-size:0.78rem; color:var(--text-secondary); line-height:1.4;">
+            <div><strong>${item.workoutName || 'AMRAP'}:</strong> ${formatDurationMs(item.totalDurationMs)} / ${item.presetMinutes} мин</div>
+            <div>${exStr}</div>
+            <div style="color:var(--text-muted); margin-top:2px;">Ср. круг: ${formatDurationMs(item.avgSplitMs)} • Лучший: ${formatDurationMs(item.bestSplitMs)}</div>
           </div>
         </div>
       `;
     }).join('');
   }
 
-  // Delete single history item
   historyItemsContainer.addEventListener('click', (e) => {
     const delBtn = e.target.closest('.btn-del-history-item');
     if (!delBtn) return;
     const id = delBtn.dataset.id;
     if (!id) return;
-    deleteHistoryItem(id);
+
+    let history = getHistory();
+    history = history.filter((item, idx) => (item.id || ('wod_' + idx)) !== id);
+    localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
+    renderHistoryList();
+    updateOverviewStats();
+    showToast('Тренировка удалена');
   });
 
-  function deleteHistoryItem(id) {
-    let history = getHistory();
-    const beforeCount = history.length;
-    history = history.filter((item, idx) => {
-      const itemId = item.id || ('wod_' + (item.date ? new Date(item.date).getTime() : idx));
-      return itemId !== id;
-    });
-
-    if (history.length < beforeCount) {
-      try {
-        localStorage.setItem(STORAGE_KEY_HISTORY, JSON.stringify(history));
-      } catch (e) {
-        console.warn('Failed to save history', e);
-      }
-      renderHistoryList();
-      updateOverviewStats();
-      showToast('Тренировка удалена');
-    }
-  }
-
-  // Clear all history modal logic
   btnClearHistory.addEventListener('click', () => {
     const history = getHistory();
     if (history.length === 0) {
@@ -2451,9 +2647,7 @@
     modalConfirmClearHistory.classList.add('active');
   });
 
-  btnCancelClearHistory.addEventListener('click', () => {
-    modalConfirmClearHistory.classList.remove('active');
-  });
+  btnCancelClearHistory.addEventListener('click', () => modalConfirmClearHistory.classList.remove('active'));
 
   btnConfirmClearHistory.addEventListener('click', () => {
     localStorage.removeItem(STORAGE_KEY_HISTORY);
@@ -2463,25 +2657,45 @@
     showToast('Вся история очищена');
   });
 
-  // Top Bar global buttons
-  btnThemeToggle.addEventListener('click', toggleTheme);
-  btnSoundToggle.addEventListener('click', toggleSound);
+  btnOpenHistory.addEventListener('click', openHistoryModal);
+  btnCloseHistory.addEventListener('click', closeHistoryModal);
+  btnCloseHistoryFooter.addEventListener('click', closeHistoryModal);
 
-  // Background visibility handling for smooth timer accuracy
-  document.addEventListener('visibilitychange', () => {
-    if (workout.active && !workout.paused) {
-      runTimerTick();
-    }
+  // TOP BAR TOGGLES
+  btnVoiceToggle.addEventListener('click', () => {
+    state.voiceEnabled = !state.voiceEnabled;
+    saveSettings();
+    updateTogglesUI();
+    showToast(state.voiceEnabled ? 'Голосовой помощник включён' : 'Голос выключен');
+    if (state.voiceEnabled) speak('Голос включён');
   });
 
-  // ==========================================
-  // INITIALIZATION
-  // ==========================================
+  btnSoundToggle.addEventListener('click', () => {
+    state.soundEnabled = !state.soundEnabled;
+    saveSettings();
+    updateTogglesUI();
+    showToast(state.soundEnabled ? 'Звуковые сигналы включены' : 'Звук выключен');
+  });
+
+  btnThemeToggle.addEventListener('click', () => {
+    modalThemePicker.classList.add('active');
+  });
+
+  btnCloseTheme.addEventListener('click', () => modalThemePicker.classList.remove('active'));
+
+  modalThemePicker.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-theme-val]');
+    if (!btn) return;
+    state.theme = btn.dataset.themeVal;
+    applyTheme();
+    saveSettings();
+    modalThemePicker.classList.remove('active');
+    showToast(`Тема изменена: ${btn.textContent.trim()}`);
+  });
+
+  // INITIALIZE APP
   loadSettings();
-  applyTheme(state.theme);
-  updateSoundUI();
-  renderExercisesSetup();
-  updateOverviewStats();
+  updateSetupUI();
 
 })();
 </script>
